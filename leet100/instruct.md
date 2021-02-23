@@ -3,84 +3,166 @@
 # 1
 
 ```
-1.java return type:
-return an arr
-return new int[]{i,j}
-
-2.java hash-map:
-define
-Map<Integer,Integer> map new HashMap<>();
-
-add
-map.put(i,j)
-
-search the keys
-if (map.containsKey(value))
-
-return the value
-map.get(key)
+public int[] twoSum(int[] nums, int target) {
+    for (int i = 0; i < nums.length; i++) {
+        for (int j = i + 1; j < nums.length; j++) {
+            if (nums[j] == target - nums[i]) {
+                return new int[] { i, j };
+            }
+        }
+    }
+    throw new IllegalArgumentException("No two sum solution");
+}
 ```
 
 # 2
 
 ```
-1.单链表英文
-single linked list
-singly linked list
-2.java single linked list
-definition 
-public class ListNode {
-    int val;
-    ListNode next;
-      ListNode() {}
-      ListNode(int val) { this.val = val; }
-      ListNode(int val, ListNode next) { this.val = val; this.next = next; }
+/**
+ * Definition for singly-linked list.
+ * public class ListNode {
+ *     int val;
+ *     ListNode next;
+ *     ListNode() {}
+ *     ListNode(int val) { this.val = val; }
+ *     ListNode(int val, ListNode next) { this.val = val; this.next = next; }
+ * }
+ */
+class Solution {
+    public ListNode addTwoNumbers(ListNode l1, ListNode l2) {
+        ListNode l3=new ListNode(0);
+        ListNode curr=l3;
+        int carry = 0;
+        
+        while (l1!=null || l2!=null){
+            int x = (l1!=null)?l1.val:0;
+            int y = (l2!=null)?l2.val:0;
+            int sum = carry + x + y;
+            carry = sum/10;
+            curr.next = new ListNode(sum%10);
+            curr=curr.next;
+            if (l1!=null) l1=l1.next;
+            if (l2!=null) l2=l2.next;
+        }
+        if (carry>0){
+            curr.next= new ListNode(carry);
+        }
+        return l3.next;    
+    }
+}
 
-difine a new ListNode
-ListNode l=new ListNode(0)
-
-add a mew ListNode
-l.next=new ListNode(i);
-l=l.next();
-3.数学进位的英文
-carry
 
 ```
 
 # 3
 
 ```
-1.one-dimension hash
-define
-Set<Character> set=new HashSet<>();
-
-check
-if (set.contains(i))
-
-add
-set.add(i)
-
-remove
-set.remove(i)
-
-2.string index
-str.charAt(i)
-
-3.Math
-eg. Math.max(i,j)
+class Solution {
+    public int lengthOfLongestSubstring(String s) {
+        int n=s.length();
+        Set<Character> set=new HashSet<>();
+        int ans=0;
+        int i=0;
+        int j=0;
+        while (i<n && j<n){
+            if (!set.contains(s.charAt(j))){
+                set.add(s.charAt(j));
+                ans = Math.max(ans,j-i+1);
+                j++;
+            }else{
+                set.remove(s.charAt(i));
+                i++;
+            }
+            
+        }
+        return ans;
+    }
+}
 ```
 
 # 4
 
 ```
-algorithm:
-the Kth number.
+class Solution {
+    public double find_k(int[] nums1,int[] nums2,int i,int j,int k){
+        if (i>=nums1.length) return nums2[j+k-1];
+        if (j>=nums2.length) return nums1[i+k-1];
+        if (k==1) {
+            return Math.min(nums1[i],nums2[j]);
+        }     
+        int mid1=(i+k/2-1<nums1.length)?nums1[i+k/2-1]:Integer.MAX_VALUE;
+        int mid2=(j+k/2-1<nums2.length)?nums2[j+k/2-1]:Integer.MAX_VALUE;
+        
+        if (mid1<mid2){
+            return find_k(nums1,nums2,i+k/2,j,k-k/2);
+        }else{
+            return find_k(nums1,nums2,i,j+k/2,k-k/2);
+        }
+    }
+    public double findMedianSortedArrays(int[] nums1, int[] nums2) {
+        int m=nums1.length;
+        int n=nums2.length;
+        int left=(m+n+1)/2;
+        int right=(m+n+2)/2;
+        return (find_k(nums1,nums2,0,0,left)+find_k(nums1,nums2,0,0,right))/2;
+    }
+}
+```
+
+# 5
+
+```
+class Solution {
+    public String longestPalindrome(String s) {
+       boolean[][] a = new boolean [1001][1001];
+       for (int i=0;i<s.length();i++) {
+           a[i][1]=true;
+       }
+       for (int i=0;i<s.length()-1;i++) {
+           a[i][2]=s.charAt(i)==s.charAt(i+1);
+       }
+       for (int j=3;j<=s.length();j++){
+           for (int i=0;i+j-1<s.length();i++){
+               a[i][j]=(a[i+1][j-2] && s.charAt(i)==s.charAt(i+j-1));
+           }
+       }
+     for (int j=s.length();j>0;j--){
+         for (int i=0;i+j-1<s.length();i++){
+             if (a[i][j]){
+                 return s.substring(i,i+j);
+             }
+         }
+     }  
+        return s.substring(0,1);
+    }
+}
 ```
 
 # 10
 
 ```
-不甚理解
+class Solution {
+    public boolean isMatch(String text, String pattern) {
+    boolean[][] dp = new boolean[text.length() + 1][pattern.length() + 1];    
+        
+    dp[text.length()][pattern.length()] = true;
+        
+     for (int i = text.length(); i >= 0; i--){
+            for (int j = pattern.length() - 1; j >= 0; j--){
+                boolean first_match = (i < text.length() &&
+                                       (pattern.charAt(j) == text.charAt(i) ||
+                                        pattern.charAt(j) == '.'));
+                if (j + 1 < pattern.length() && pattern.charAt(j+1) == '*'){
+                    dp[i][j] = dp[i][j+2] || first_match && dp[i+1][j];
+                } else {
+                    dp[i][j] = first_match && dp[i+1][j+1];
+                }
+            }
+        }
+           return dp[0][0];   
+        
+    }
+}
 ```
 
 # 11
