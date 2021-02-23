@@ -214,3 +214,66 @@ class Solution {
 }
 ~~~
 
+# 20
+
+~~~
+class Solution {
+    public boolean isValid(String s) {
+        int n = s.length();
+        if (n % 2 == 1) {
+            return false;
+        }
+
+        Map<Character, Character> pairs = new HashMap<Character, Character>() {{
+            put(')', '(');
+            put(']', '[');
+            put('}', '{');
+        }};
+        Deque<Character> stack = new LinkedList<Character>();
+        for (int i = 0; i < n; i++) {
+            char ch = s.charAt(i);
+            if (pairs.containsKey(ch)) {
+                if (stack.isEmpty() || stack.peek() != pairs.get(ch)) {
+                    return false;
+                }
+                stack.pop();
+            } else {
+                stack.push(ch);
+            }
+        }
+        return stack.isEmpty();
+    }
+}
+~~~
+
+# 21
+
+```
+class Solution {
+    public ListNode mergeTwoLists(ListNode l1, ListNode l2) {
+        ListNode prehead = new ListNode(-1);
+
+        ListNode prev = prehead;
+        while (l1 != null && l2 != null) {
+            if (l1.val <= l2.val) {
+                prev.next = l1;
+                l1 = l1.next;
+            } else {
+                prev.next = l2;
+                l2 = l2.next;
+            }
+            prev = prev.next;
+        }
+
+        // 合并后 l1 和 l2 最多只有一个还未被合并完，我们直接将链表末尾指向未合并完的链表即可
+        prev.next = l1 == null ? l2 : l1;
+
+        return prehead.next;
+    }
+}
+```
+
+
+
+
+
