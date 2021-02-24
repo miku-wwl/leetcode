@@ -653,3 +653,339 @@ class Solution {
 }
 ```
 
+# 48
+
+```
+class Solution {
+    public void rotate(int[][] matrix) {
+        int n = matrix.length;
+        int[][] matrix_new = new int[n][n];
+        for (int i = 0; i < n; ++i) {
+            for (int j = 0; j < n; ++j) {
+                matrix_new[j][n - i - 1] = matrix[i][j];
+            }
+        }
+        for (int i = 0; i < n; ++i) {
+            for (int j = 0; j < n; ++j) {
+                matrix[i][j] = matrix_new[i][j];
+            }
+        }
+    }
+}
+```
+
+# 53
+
+```
+class Solution {
+    public int maxSubArray(int[] nums) {
+        int n= nums.length;
+        int[] f = new int[n];
+        f[0]=nums[0];
+        int ans = f[0];
+        for (int i=1;i<n;i++){
+            f[i]=Math.max(f[i-1]+nums[i],nums[i]);
+            ans = Math.max(ans,f[i]);
+        }
+        return ans;
+    }
+}
+```
+
+# 55
+
+```
+class Solution {
+    public boolean canJump(int[] nums) {
+        
+        int arriable = 0;
+        int n = nums.length;
+
+        for (int i=0;i<n;i++){
+            if (arriable>=i){
+                arriable = Math.max(arriable,i+nums[i]);
+            }
+        }
+
+        if (arriable>=n-1){
+            return true;
+        }else{
+            return false;
+        }
+
+    }
+}
+```
+
+# 56
+
+```
+
+class Solution {
+    public int[][] merge(int[][] intervals) {
+        if (intervals.length == 0) {
+            return new int[0][2];
+        }
+        Arrays.sort(intervals, new Comparator<int[]>() {
+            public int compare(int[] interval1, int[] interval2) {
+                return interval1[0] - interval2[0];
+            }
+        });
+        List<int[]> merged = new ArrayList<int[]>();
+        for (int i = 0; i < intervals.length; ++i) {
+            int L = intervals[i][0], R = intervals[i][1];
+            if (merged.size() == 0 || merged.get(merged.size() - 1)[1] < L) {
+                merged.add(new int[]{L, R});
+            } else {
+                merged.get(merged.size() - 1)[1] = Math.max(merged.get(merged.size() - 1)[1], R);
+            }
+        }
+        return merged.toArray(new int[merged.size()][]);
+    }
+}
+```
+
+# 62
+
+```
+class Solution {
+    public int uniquePaths(int m, int n) {
+        m=m-1;
+        n=n-1;
+        if (m>n){
+            int temp = m;
+            m= n;
+            n= temp;
+        }
+
+        int k=m+n;
+        long ans=1;
+        for (int i=n+1;i<=k;i++) ans*=i;
+        for (int i=1;i<=m;i++) ans/=i;
+        return (int) ans;
+    }
+}
+```
+
+# 64
+
+```
+class Solution {
+    public int minPathSum(int[][] grid) {
+        int m = grid.length;
+        int n = grid[0].length;
+        int[][] f = new int[m][n];
+        for(int i =0;i<m;i++)
+            for(int j =0;j<n;j++){
+                f[i][j]=90000000;
+            }
+        f[0][0]=grid[0][0];
+        for(int i =0;i<m;i++)
+            for(int j =0;j<n;j++)
+                if (!(i==0 && j==0)){
+                    int x=90000000;
+                    int y=90000000;
+                    if (i>0) x=f[i-1][j];
+                    if (j>0) y=f[i][j-1];
+                    f[i][j] = Math.min(x+grid[i][j],y+grid[i][j]);
+             
+                }    
+        return f[m-1][n-1];    
+    }
+}
+```
+
+# 70
+
+```
+class Solution {
+    public int climbStairs(int n) {
+        int[] f = new int[n+2];
+        f[0]=0;
+        f[1]=1;
+        f[2]=2;
+        for (int i=3;i<=n;i++){
+            f[i]=f[i-1]+f[i-2];
+        }
+        return f[n];
+    }
+}
+```
+
+# 72
+
+```
+class Solution {
+    public int minDistance(String word1, String word2) {
+        int n = word1.length();
+        int m = word2.length();
+
+        // 有一个字符串为空串
+        if (n * m == 0) {
+            return n + m;
+        }
+
+        // DP 数组
+        int[][] D = new int[n + 1][m + 1];
+
+        // 边界状态初始化
+        for (int i = 0; i < n + 1; i++) {
+            D[i][0] = i;
+        }
+        for (int j = 0; j < m + 1; j++) {
+            D[0][j] = j;
+        }
+
+        // 计算所有 DP 值
+        for (int i = 1; i < n + 1; i++) {
+            for (int j = 1; j < m + 1; j++) {
+                int left = D[i - 1][j] + 1;
+                int down = D[i][j - 1] + 1;
+                int left_down = D[i - 1][j - 1];
+                if (word1.charAt(i - 1) != word2.charAt(j - 1)) {
+                    left_down += 1;
+                }
+                D[i][j] = Math.min(left, Math.min(down, left_down));
+            }
+        }
+        return D[n][m];
+    }
+}
+```
+
+# 75
+
+```
+class Solution {
+    public void sortColors(int[] nums) {
+        int red=0;
+        int white=0;
+        int blue=0;
+        for (int i: nums){
+            switch (i){
+                case 0: 
+                    red+=1;
+                    break;
+                case 1:
+                    white+=1;
+                    break;
+                default:
+                    blue+=1; 
+            }
+        }
+
+        int number = 0;
+        for (int i=1;i<=red;i++) {nums[number]=0;number+=1;}
+        for (int i=1;i<=white;i++) {nums[number]=1;number+=1;}
+        for (int i=1;i<=blue;i++) {nums[number]=2;number+=1;}
+    }
+}
+```
+
+# 78
+
+~~~
+class Solution {
+    List<List<Integer>> lists = new ArrayList<List<Integer>>();
+
+    private void find(int[] nums, int K,List<Integer> list){
+        int n = nums.length;
+        if (K==n){
+            lists.add(list);
+        }else{
+            List<Integer> list1 = new ArrayList<Integer>(list);
+            List<Integer> list2 = new ArrayList<Integer>(list);
+            list2.add(nums[K]);
+
+            find(nums,K+1,list1);
+            find(nums,K+1,list2);
+        }
+    }
+    public List<List<Integer>> subsets(int[] nums) {
+        find(nums,0,new ArrayList<Integer>());
+        return lists;
+    }
+}
+~~~
+
+# 79
+
+```
+class Solution {
+    public boolean exist(char[][] board, String word) {
+        int h = board.length, w = board[0].length;
+        boolean[][] visited = new boolean[h][w];
+        for (int i = 0; i < h; i++) {
+            for (int j = 0; j < w; j++) {
+                boolean flag = check(board, visited, i, j, word, 0);
+                if (flag) {
+                    return true;
+                }
+            }
+        }
+        return false;
+    }
+
+    public boolean check(char[][] board, boolean[][] visited, int i, int j, String s, int k) {
+        if (board[i][j] != s.charAt(k)) {
+            return false;
+        } else if (k == s.length() - 1) {
+            return true;
+        }
+        visited[i][j] = true;
+        int[][] directions = {{0, 1}, {0, -1}, {1, 0}, {-1, 0}};
+        boolean result = false;
+        for (int[] dir : directions) {
+            int newi = i + dir[0], newj = j + dir[1];
+            if (newi >= 0 && newi < board.length && newj >= 0 && newj < board[0].length) {
+                if (!visited[newi][newj]) {
+                    boolean flag = check(board, visited, newi, newj, s, k + 1);
+                    if (flag) {
+                        result = true;
+                        break;
+                    }
+                }
+            }
+        }
+        visited[i][j] = false;
+        return result;
+    }
+}
+```
+
+# 84 单调栈
+
+~~~
+class Solution {
+    public int largestRectangleArea(int[] heights) {
+        int n = heights.length;
+        int[] left = new int[n];
+        int[] right = new int[n];
+        
+        Stack<Integer> mono_stack = new Stack<Integer>();
+        for (int i = 0; i < n; ++i) {
+            while (!mono_stack.isEmpty() && heights[mono_stack.peek()] >= heights[i]) {
+                mono_stack.pop();
+            }
+            left[i] = (mono_stack.isEmpty() ? -1 : mono_stack.peek());
+            mono_stack.push(i);
+        }
+
+        mono_stack.clear();
+        for (int i = n - 1; i >= 0; --i) {
+            while (!mono_stack.isEmpty() && heights[mono_stack.peek()] >= heights[i]) {
+                mono_stack.pop();
+            }
+            right[i] = (mono_stack.isEmpty() ? n : mono_stack.peek());
+            mono_stack.push(i);
+        }
+        
+        int ans = 0;
+        for (int i = 0; i < n; ++i) {
+            ans = Math.max(ans, (right[i] - left[i] - 1) * heights[i]);
+        }
+        return ans;
+    }
+}
+~~~
+
