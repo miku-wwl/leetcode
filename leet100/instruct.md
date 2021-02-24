@@ -355,7 +355,301 @@ class Solution {
 }
 ```
 
+# 22
+
+```
+class Solution {
+    List<String> strs = new ArrayList<String>();
+
+    private void find(int leftNumber,int rightNumber, String str){
+        String string ="";
+        if (leftNumber == rightNumber && 0 == leftNumber){
+            strs.add(str);
+            return;
+        }
+        if (leftNumber == rightNumber){
+            find(leftNumber-1,rightNumber,str+"(");
+            return;
+        }
+        if (leftNumber == 0){
+            find(leftNumber,rightNumber-1,str+")" );
+            return;
+        }
+        find(leftNumber-1,rightNumber,str+"(");
+        find(leftNumber,rightNumber-1,str+")" );
+        return;
+    }
+
+    
+    public List<String> generateParenthesis(int n) {
+        int leftNumber=n;
+        int rightNumber=n;
+        String str = "";
+        find(leftNumber,rightNumber,str);
+        return strs;
+    }
+}
+```
+
+# 23
+
+```
+/**
+ * Definition for singly-linked list.
+ * public class ListNode {
+ *     int val;
+ *     ListNode next;
+ *     ListNode() {}
+ *     ListNode(int val) { this.val = val; }
+ *     ListNode(int val, ListNode next) { this.val = val; this.next = next; }
+ * }
+ */
+class Solution {
+    List<Integer> ansList = new ArrayList<Integer>();
+
+    private void find(ListNode Current){
+        if (Current !=null){
+            ansList.add(Current.val);
+            find(Current.next);
+            return;
+        }
+        return;
+    }
+    public ListNode mergeKLists(ListNode[] lists) {
+        
+        for (ListNode list : lists){
+            find(list);
+        }
+        Collections.sort(ansList);
+        ListNode list = new ListNode();
+        ListNode head = list;
+        for (Integer i : ansList){
+            list.next = new ListNode(i);
+            list = list.next;
+        }
+        return head.next;
+    }
+}
+```
+
+# 32
+
+```
+public class Solution {
+    public int longestValidParentheses(String s) {
+        int maxans = 0;
+        int[] dp = new int[s.length()];
+        for (int i = 1; i < s.length(); i++) {
+            if (s.charAt(i) == ')') {
+                if (s.charAt(i - 1) == '(') {
+                    dp[i] = (i >= 2 ? dp[i - 2] : 0) + 2;
+                } else if (i - dp[i - 1] > 0 && s.charAt(i - dp[i - 1] - 1) == '(') {
+                    dp[i] = dp[i - 1] + ((i - dp[i - 1]) >= 2 ? dp[i - dp[i - 1] - 2] : 0) + 2;
+                }
+                maxans = Math.max(maxans, dp[i]);
+            }
+        }
+        return maxans;
+    }
+}
+```
+
+# 33
+
+```
+class Solution {
+    public int search(int[] nums, int target) {
+        int n = nums.length;
+        if (n == 0) {
+            return -1;
+        }
+        if (n == 1) {
+            return nums[0] == target ? 0 : -1;
+        }
+        int l = 0, r = n - 1;
+        while (l <= r) {
+            int mid = (l + r) / 2;
+            if (nums[mid] == target) {
+                return mid;
+            }
+            if (nums[0] <= nums[mid]) {
+                if (nums[0] <= target && target < nums[mid]) {
+                    r = mid - 1;
+                } else {
+                    l = mid + 1;
+                }
+            } else {
+                if (nums[mid] < target && target <= nums[n - 1]) {
+                    l = mid + 1;
+                } else {
+                    r = mid - 1;
+                }
+            }
+        }
+        return -1;
+    }
+}
+```
+
+# 34
+
+```
+class Solution {
+    public int[] searchRange(int[] nums, int target) {
+        int leftIdx = binarySearch(nums, target, true);
+        int rightIdx = binarySearch(nums, target, false) - 1;
+        if (leftIdx <= rightIdx && rightIdx < nums.length && nums[leftIdx] == target && nums[rightIdx] == target) {
+            return new int[]{leftIdx, rightIdx};
+        } 
+        return new int[]{-1, -1};
+    }
+
+    public int binarySearch(int[] nums, int target, boolean lower) {
+        int left = 0, right = nums.length - 1, ans = nums.length;
+        while (left <= right) {
+            int mid = (left + right) / 2;
+            if (nums[mid] > target || (lower && nums[mid] >= target)) {
+                right = mid - 1;
+                ans = mid;
+            } else {
+                left = mid + 1;
+            }
+        }
+        return ans;
+    }
+}
+```
+
+# 39
+
+```
+class Solution {
+    public List<List<Integer>> combinationSum(int[] candidates, int target) {
+        List<List<Integer>> ans = new ArrayList<List<Integer>>();
+        List<Integer> combine = new ArrayList<Integer>();
+        dfs(candidates, target, ans, combine, 0);
+        return ans;
+    }
+
+    public void dfs(int[] candidates, int target, List<List<Integer>> ans, List<Integer> combine, int idx) {
+        if (idx == candidates.length) {
+            return;
+        }
+        if (target == 0) {
+            ans.add(new ArrayList<Integer>(combine));
+            return;
+        }
+        // 直接跳过
+        dfs(candidates, target, ans, combine, idx + 1);
+        // 选择当前数
+        if (target - candidates[idx] >= 0) {
+            combine.add(candidates[idx]);
+            dfs(candidates, target - candidates[idx], ans, combine, idx);
+            combine.remove(combine.size() - 1);
+        }
+    }
+}
+```
+
+# 41
+
+```
+class Solution {
+    public int firstMissingPositive(int[] nums) {
+        int n = nums.length;
+        for (int i = 0; i < n; ++i) {
+            if (nums[i] <= 0) {
+                nums[i] = n + 1;
+            }
+        }
+        for (int i = 0; i < n; ++i) {
+            int num = Math.abs(nums[i]);
+            if (num <= n) {
+                nums[num - 1] = -Math.abs(nums[num - 1]);
+            }
+        }
+        for (int i = 0; i < n; ++i) {
+            if (nums[i] > 0) {
+                return i + 1;
+            }
+        }
+        return n + 1;
+    }
+}
+```
+
+# 42
+
+```
+class Solution {
+    public int trap(int[] height) {
+        int n=height.length;
+        if (n==0) return 0;
+        int[] leftwall = new int[n];
+        int[] rightwall = new int[n];
+      
+        leftwall[0]=height[0];
+        rightwall[n-1]=height[n-1];
+        for (int i=1;i<n-1;i++)  leftwall[i] = Math.max(height[i],leftwall[i-1]);
+        for (int i=n-2;i>0;i--)  rightwall[i] = Math.max(height[i],rightwall[i+1]);
+
+        for (int i=1;i<n-1;i++)  rightwall[i] = Math.min(leftwall[i],rightwall[i]);
+        int ans=0;
+        for (int i=1;i<n-1;i++)  ans+=rightwall[i]-height[i];
+        return ans;     
+    }
+}
+```
+
+# 45
+
+```
+class Solution {
+    public int jump(int[] nums) {
+        int n = nums.length;
+        int[] f = new int[n+1];
+
+        f[0]=0;
+        for (int i=1;i<n;i++) f[i]=n*2;
 
 
+        for (int i=0;i<n;i++){
+            for (int j=1;j<=nums[i] && i+j<n;j++){
+                f[i+j] = Math.min(f[i+j],f[i]+1);
+            }
+        }
+        return f[n-1];
+    }
+}
+```
 
+# 46
+
+```
+class Solution {
+    List<List<Integer>> lists = new ArrayList<List<Integer>>();
+
+    private void find(int[] nums, List<Integer> list ){
+        if (list.size() == nums.length) {
+            lists.add(list);
+            return;
+        }else{
+            for (int i: nums){
+                if (!list.contains(i)){
+
+                    List<Integer> templist = new ArrayList<Integer>(list);
+                    
+                    templist.add(i);
+                    find(nums,templist);
+                }
+            }
+        }
+    }
+    public List<List<Integer>> permute(int[] nums) {
+        List<Integer> list = new ArrayList<Integer>();
+        find(nums,list);
+        return lists;
+    }
+}
+```
 
