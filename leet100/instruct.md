@@ -1293,3 +1293,389 @@ public class Solution {
 }
 ```
 
+# 124
+
+```
+/**
+ * Definition for a binary tree node.
+ * public class TreeNode {
+ *     int val;
+ *     TreeNode left;
+ *     TreeNode right;
+ *     TreeNode() {}
+ *     TreeNode(int val) { this.val = val; }
+ *     TreeNode(int val, TreeNode left, TreeNode right) {
+ *         this.val = val;
+ *         this.left = left;
+ *         this.right = right;
+ *     }
+ * }
+ */
+class Solution {
+    int maxn=-99999;
+    private int find(TreeNode tree){
+        int leftmax=0;
+        int rightmax=0;
+        if (tree!=null){
+            leftmax=0;
+            rightmax=0;
+            if (tree.left!=null) leftmax = Math.max(0,find(tree.left));
+            if (tree.right!=null) rightmax = Math.max(0,find(tree.right));
+
+
+
+            maxn = Math.max(tree.val+leftmax,maxn);
+            maxn = Math.max(tree.val+rightmax,maxn);
+            maxn = Math.max(tree.val+leftmax+rightmax,maxn);
+
+            return Math.max(tree.val+leftmax,tree.val+rightmax);
+        }
+        return 0;
+    }
+
+    public int maxPathSum(TreeNode root) {
+        find(root);
+
+        return maxn;
+    }
+}
+```
+
+# 128
+
+```
+class Solution {
+    public int longestConsecutive(int[] nums) {
+        Set<Integer> num_set = new HashSet<Integer>();
+        for (int num : nums) {
+            num_set.add(num);
+        }
+
+        int longestStreak = 0;
+
+        for (int num : num_set) {
+            if (!num_set.contains(num - 1)) {
+                int currentNum = num;
+                int currentStreak = 1;
+
+                while (num_set.contains(currentNum + 1)) {
+                    currentNum += 1;
+                    currentStreak += 1;
+                }
+
+                longestStreak = Math.max(longestStreak, currentStreak);
+            }
+        }
+
+        return longestStreak;
+    }
+}
+```
+
+
+
+# 129
+
+```
+class Solution {
+    public int singleNumber(int[] nums) {
+        Set<Integer> set = new HashSet<>();
+        
+
+
+        for(int i: nums){
+            if (set.contains(i)){
+                set.remove(i);
+            }else{
+                set.add(i);
+            }
+        }
+        Iterator<Integer> it = set.iterator();
+        return it.next();
+    }
+}
+```
+
+# 139
+
+```
+public class Solution {
+    public boolean wordBreak(String s, List<String> wordDict) {
+        Set<String> wordDictSet = new HashSet(wordDict);
+        boolean[] dp = new boolean[s.length() + 1];
+        dp[0] = true;
+        for (int i = 1; i <= s.length(); i++) {
+            for (int j = 0; j < i; j++) {
+                if (dp[j] && wordDictSet.contains(s.substring(j, i))) {
+                    dp[i] = true;
+                    break;
+                }
+            }
+        }
+        return dp[s.length()];
+    }
+}
+```
+
+# 148
+
+```
+/**
+ * Definition for singly-linked list.
+ * public class ListNode {
+ *     int val;
+ *     ListNode next;
+ *     ListNode() {}
+ *     ListNode(int val) { this.val = val; }
+ *     ListNode(int val, ListNode next) { this.val = val; this.next = next; }
+ * }
+ */
+class Solution {
+    public ListNode sortList(ListNode head) {
+       
+        int count = 0;
+        ListNode listnode = head;
+        while (listnode !=null){
+            count++;
+            listnode=listnode.next;
+        }
+
+        int[] num = new int[count];
+
+        listnode = head;
+
+        count=-1;
+        while (listnode !=null){
+            count++;
+            num[count]=listnode.val;
+            listnode=listnode.next;
+        }
+        
+
+
+        Arrays.sort(num);
+        
+        listnode = head;
+        for (int i=0;i<=count; i++){
+            listnode.val = num[i];
+            listnode = listnode.next;
+        }
+        return head;
+    }
+}
+```
+
+# 152
+
+~~~
+class Solution {
+    public int maxProduct(int[] nums) {
+        int length = nums.length;
+        int[] maxF = new int[length];
+        int[] minF = new int[length];
+        System.arraycopy(nums, 0, maxF, 0, length);
+        System.arraycopy(nums, 0, minF, 0, length);
+        for (int i = 1; i < length; ++i) {
+            maxF[i] = Math.max(maxF[i - 1] * nums[i], Math.max(nums[i], minF[i - 1] * nums[i]));
+            minF[i] = Math.min(minF[i - 1] * nums[i], Math.min(nums[i], maxF[i - 1] * nums[i]));
+        }
+        int ans = maxF[0];
+        for (int i = 1; i < length; ++i) {
+            ans = Math.max(ans, maxF[i]);
+        }
+        return ans;
+    }
+}
+~~~
+
+# 155
+
+~~~
+class MinStack {
+    Deque<Integer> xStack;
+    Deque<Integer> minStack;
+
+    public MinStack() {
+        xStack = new LinkedList<Integer>();
+        minStack = new LinkedList<Integer>();
+        minStack.push(Integer.MAX_VALUE);
+    }
+    
+    public void push(int x) {
+        xStack.push(x);
+        minStack.push(Math.min(minStack.peek(), x));
+    }
+    
+    public void pop() {
+        xStack.pop();
+        minStack.pop();
+    }
+    
+    public int top() {
+        return xStack.peek();
+    }
+    
+    public int getMin() {
+        return minStack.peek();
+    }
+}
+~~~
+
+# 160
+
+~~~
+/**
+ * Definition for singly-linked list.
+ * public class ListNode {
+ *     int val;
+ *     ListNode next;
+ *     ListNode(int x) {
+ *         val = x;
+ *         next = null;
+ *     }
+ * }
+ */
+public class Solution {
+    Set<ListNode> hash = new HashSet<ListNode>();
+    ListNode ref;
+
+    private void find(ListNode node){
+        if (node != null){
+            hash.add(node);
+            find(node.next);
+        }
+    }
+     private void find2(ListNode node){
+        if (node != null){
+            if (!hash.add(node)){
+                ref = node;
+                return ;
+            }else{
+                find2(node.next);
+            }
+        }
+    }
+    public ListNode getIntersectionNode(ListNode headA, ListNode headB) {
+        
+        find(headA);
+        find2(headB);
+        return ref;
+    }
+}
+~~~
+
+# 169
+
+~~~
+class Solution {
+    private Map<Integer, Integer> countNums(int[] nums) {
+        Map<Integer, Integer> counts = new HashMap<Integer, Integer>();
+        for (int num : nums) {
+            if (!counts.containsKey(num)) {
+                counts.put(num, 1);
+            } else {
+                counts.put(num, counts.get(num) + 1);
+            }
+        }
+        return counts;
+    }
+
+    public int majorityElement(int[] nums) {
+        Map<Integer, Integer> counts = countNums(nums);
+
+        Map.Entry<Integer, Integer> majorityEntry = null;
+        for (Map.Entry<Integer, Integer> entry : counts.entrySet()) {
+            if (majorityEntry == null || entry.getValue() > majorityEntry.getValue()) {
+                majorityEntry = entry;
+            }
+        }
+
+        return majorityEntry.getKey();
+    }
+}
+~~~
+
+~~~c++
+class Solution {
+public:
+    int majorityElement(vector<int>& nums) {
+        unordered_map<int, int> counts;
+        int majority = 0, cnt = 0;
+        for (int num: nums) {
+            ++counts[num];
+            if (counts[num] > cnt) {
+                majority = num;
+                cnt = counts[num];
+            }
+        }
+        return majority;
+    }
+};
+~~~
+
+# 198
+
+~~~
+class Solution {
+    public int rob(int[] nums) {
+        int n = nums.length;
+        int[] f = new int[n];
+        
+        if (n==0) return 0;
+        if (n==1) return nums[0];
+
+        f[0] = nums[0];
+        f[1] = Math.max(nums[0],nums[1]);
+        
+        for (int i=2;i<n;i++)
+            f[i] = Math.max(f[i-2]+nums[i],f[i-1]);
+            
+        return f[n-1];
+    }
+}
+~~~
+
+# 199
+
+```
+/**
+ * Definition for a binary tree node.
+ * public class TreeNode {
+ *     int val;
+ *     TreeNode left;
+ *     TreeNode right;
+ *     TreeNode() {}
+ *     TreeNode(int val) { this.val = val; }
+ *     TreeNode(int val, TreeNode left, TreeNode right) {
+ *         this.val = val;
+ *         this.left = left;
+ *         this.right = right;
+ *     }
+ * }
+ */
+class Solution {
+    
+    Set<Integer> set = new HashSet<Integer>();
+    List<Integer> list = new ArrayList<Integer>();
+
+    private void find(TreeNode tree, int level){
+        if (tree !=null){
+            if (!set.add(level)){
+                find(tree.right,level+1);
+                find(tree.left,level+1);
+            }else{
+                list.add(tree.val);
+                find(tree.right,level+1);
+                find(tree.left,level+1);
+            }
+        }
+        return ;  
+    }
+
+    public List<Integer> rightSideView(TreeNode root) {
+        find(root,1);
+        return list;
+    }
+}
+```
+
