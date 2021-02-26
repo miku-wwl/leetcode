@@ -2209,69 +2209,7 @@ class Solution {
 
 ```
 
-```
-class Solution {
-    public int minMeetingRooms(int[][] intervals) {
 
-    // Check for the base case. If there are no intervals, return 0
-    if (intervals.length == 0) {
-      return 0;
-    }
-
-    Integer[] start = new Integer[intervals.length];
-    Integer[] end = new Integer[intervals.length];
-
-    for (int i = 0; i < intervals.length; i++) {
-      start[i] = intervals[i][0];
-      end[i] = intervals[i][1];
-    }
-
-    // Sort the intervals by end time
-    Arrays.sort(
-        end,
-        new Comparator<Integer>() {
-          public int compare(Integer a, Integer b) {
-            return a - b;
-          }
-        });
-
-    // Sort the intervals by start time
-    Arrays.sort(
-        start,
-        new Comparator<Integer>() {
-          public int compare(Integer a, Integer b) {
-            return a - b;
-          }
-        });
-
-    // The two pointers in the algorithm: e_ptr and s_ptr.
-    int startPointer = 0, endPointer = 0;
-
-    // Variables to keep track of maximum number of rooms used.
-    int usedRooms = 0;
-
-    // Iterate over intervals.
-    while (startPointer < intervals.length) {
-
-      // If there is a meeting that has ended by the time the meeting at `start_pointer` starts
-      if (start[startPointer] >= end[endPointer]) {
-        usedRooms -= 1;
-        endPointer += 1;
-      }
-
-      // We do this irrespective of whether a room frees up or not.
-      // If a room got free, then this used_rooms += 1 wouldn't have any effect. used_rooms would
-      // remain the same in that case. If no room was free, then this would increase used_rooms
-      usedRooms += 1;
-      startPointer += 1;
-
-    }
-
-    return usedRooms;
-  }
-}
-
-```
 
 ```python
 #  Copyright (c) 2021
@@ -2578,6 +2516,282 @@ class Solution {
             ret[i] = queue.poll()[0];
         }
         return ret;
+    }
+}
+```
+
+# 394 递归 括号处理
+
+```
+class Solution {
+    String src;
+    int ptr;
+
+    public String decodeString(String s) {
+        src = s;
+        ptr = 0;
+        return getString();
+    }
+
+    public String getString() {
+        if (ptr == src.length() || src.charAt(ptr) == ']') {
+            // String -> EPS
+            return "";
+        }
+
+        char cur = src.charAt(ptr);
+        int repTime = 1;
+        String ret = "";
+
+        if (Character.isDigit(cur)) {
+            // String -> Digits [ String ] String
+            // 解析 Digits
+            repTime = getDigits(); 
+            // 过滤左括号
+            ++ptr;
+            // 解析 String
+            String str = getString(); 
+            // 过滤右括号
+            ++ptr;
+            // 构造字符串
+            while (repTime-- > 0) {
+                ret += str;
+            }
+        } else if (Character.isLetter(cur)) {
+            // String -> Char String
+            // 解析 Char
+            ret = String.valueOf(src.charAt(ptr++));
+        }
+        
+        return ret + getString();
+    }
+
+    public int getDigits() {
+        int ret = 0;
+        while (ptr < src.length() && Character.isDigit(src.charAt(ptr))) {
+            ret = ret * 10 + src.charAt(ptr++) - '0';
+        }
+        return ret;
+    }
+}
+
+```
+
+# 406
+
+~~~
+class Solution {
+    public int[][] reconstructQueue(int[][] people) {
+        int n = people.length;
+        boolean[] selected = new boolean[n];
+        int[][] order = new int[n][2];
+        int[][] newpeople = new int[n][2];
+
+        for (int i=0;i<n;i++)
+            for (int j=0;j<=1;j++)
+                newpeople[i][j] = people[i][j];
+
+
+        for (int i=0;i<n;i++){
+            int x,y;
+            x=99999999;
+            y=99999999;
+            for (int j=0;j<n;j++){
+                if (!selected[j]){
+                    if (people[j][1]<y){
+                        x=j;
+                        y=people[j][1];
+                        continue;
+                    }
+                    if (people[j][1]==y && people[j][0]<people[x][0]){
+                        x=j;
+                        //y=people[j][1];
+                        continue;
+                    }
+                }
+            }
+            order[i] = newpeople[x];
+            selected[x] = true;
+
+            for (int j=0;j<n;j++)
+                if (!selected[j] && j!=x && people[j][0]<=people[x][0]){
+                    people[j][1] -= 1;
+                }
+
+        }
+
+        return order;
+
+    }
+}
+~~~
+
+~~~
+class Solution {
+    public int[][] reconstructQueue(int[][] people) {
+        Arrays.sort(people, new Comparator<int[]>() {
+            public int compare(int[] person1, int[] person2) {
+                if (person1[0] != person2[0]) {
+                    return person2[0] - person1[0];
+                } else {
+                    return person1[1] - person2[1];
+                }
+            }
+        });
+        List<int[]> ans = new ArrayList<int[]>();
+        for (int[] person : people) {
+            ans.add(person[1], person);
+        }
+        return ans.toArray(new int[ans.size()][]);
+    }
+}
+~~~
+
+# 416
+
+~~~
+class Solution {
+    public boolean canPartition(int[] nums) {
+        int Sum=0;
+        for (int i: nums){
+            Sum += i;
+        }
+        if (Sum % 2 ==1) return false;
+
+        Set<Integer> set = new HashSet<Integer>();
+        set.add(0);
+
+        int[] x = new int[20001];
+        x[0]=0;
+        int xLength=1;
+
+        for (int i : nums){
+            int xLengthIncrease;
+            xLengthIncrease = 0;
+            for (int j=0;j<xLength;j++)
+                if (!set.contains(i+x[j])){
+                    set.add(i+x[j]);
+                    xLengthIncrease +=1;
+                    x[xLength+xLengthIncrease-1] = (i+x[j]);
+                }
+            xLength += xLengthIncrease; 
+        }
+
+        return set.contains(Sum/2);
+
+    }
+}
+~~~
+
+# 437 前缀和 hashmap
+
+~~~
+**
+ * Definition for a binary tree node.
+ * public class TreeNode {
+ *     int val;
+ *     TreeNode left;
+ *     TreeNode right;
+ *     TreeNode(int x) { val = x; }
+ * }
+ */
+class Solution {
+    public int pathSum(TreeNode root, int sum) {
+        // key是前缀和, value是大小为key的前缀和出现的次数
+        Map<Integer, Integer> prefixSumCount = new HashMap<>();
+        // 前缀和为0的一条路径
+        prefixSumCount.put(0, 1);
+        // 前缀和的递归回溯思路
+        return recursionPathSum(root, prefixSumCount, sum, 0);
+    }
+
+    /**
+     * 前缀和的递归回溯思路
+     * 从当前节点反推到根节点(反推比较好理解，正向其实也只有一条)，有且仅有一条路径，因为这是一棵树
+     * 如果此前有和为currSum-target,而当前的和又为currSum,两者的差就肯定为target了
+     * 所以前缀和对于当前路径来说是唯一的，当前记录的前缀和，在回溯结束，回到本层时去除，保证其不影响其他分支的结果
+     * @param node 树节点
+     * @param prefixSumCount 前缀和Map
+     * @param target 目标值
+     * @param currSum 当前路径和
+     * @return 满足题意的解
+     */
+    private int recursionPathSum(TreeNode node, Map<Integer, Integer> prefixSumCount, int target, int currSum) {
+        // 1.递归终止条件
+        if (node == null) {
+            return 0;
+        }
+        // 2.本层要做的事情
+        int res = 0;
+        // 当前路径上的和
+        currSum += node.val;
+
+        //---核心代码
+        // 看看root到当前节点这条路上是否存在节点前缀和加target为currSum的路径
+        // 当前节点->root节点反推，有且仅有一条路径，如果此前有和为currSum-target,而当前的和又为currSum,两者的差就肯定为target了
+        // currSum-target相当于找路径的起点，起点的sum+target=currSum，当前点到起点的距离就是target
+        res += prefixSumCount.getOrDefault(currSum - target, 0);
+        // 更新路径上当前节点前缀和的个数
+        prefixSumCount.put(currSum, prefixSumCount.getOrDefault(currSum, 0) + 1);
+        //---核心代码
+
+        // 3.进入下一层
+        res += recursionPathSum(node.left, prefixSumCount, target, currSum);
+        res += recursionPathSum(node.right, prefixSumCount, target, currSum);
+
+        // 4.回到本层，恢复状态，去除当前节点的前缀和数量
+        prefixSumCount.put(currSum, prefixSumCount.get(currSum) - 1);
+        return res;
+    }
+}
+~~~
+
+# 438 滑动窗口
+
+```
+class Solution {
+    public List<Integer> findAnagrams(String s, String p) {
+        List<Integer> resultList = new ArrayList<>();
+        // 计算字符串p中各元素的出现次数
+        int[] pFreq = new int[26];
+        for(int i = 0; i < p.length(); i++) {
+            pFreq[p.charAt(i)-'a']++;
+        }
+        // 窗口区间为[start,end]
+        int start = 0, end = -1;
+        while (start <s.length()) {
+            // 还有剩余元素未考察，且窗口内字符串长度小于字符串p的长度
+            // 则扩大窗口右侧边界
+            if (end+1 < s.length() && end-start+1 <p.length()) {
+                end++;
+            }else {
+                // 右侧边界不能继续扩大或窗口内字符串长度等于字符串p的长度
+                // 则缩小左侧边界
+                start++;
+            }
+            // 当窗口内字符串长度等于字符串p的长度时，则判断其是不是字符串p的字母异位词子串
+            if (end-start+1 == p.length() && isAnagrams(s.substring(start,end+1), pFreq)) {
+                resultList.add(start);
+            }
+        }
+        return resultList;
+    }
+    // 判断当前子串是不是字符串p的字母异位词
+    private boolean isAnagrams(String window, int[] pFreq) {
+        // 计算窗口内字符串各元素的出现次数
+        int[] windowFreq = new int[26];
+        for(int i = 0; i < window.length(); i++) {
+            windowFreq[window.charAt(i)-'a']++;
+        }
+        // 比较窗口内各元素的出现次数和字符串p中各元素的出现次数是否一样
+        // 如果都一样，则说明窗口内的字符串是字符串p的字母异位词子串
+        // 如果不一样，则说明不是其子串
+        for(int j = 0; j < 26; j++) {
+            if (windowFreq[j] != pFreq[j]) {
+                return false;
+            }
+        }
+        return true;
     }
 }
 ```
