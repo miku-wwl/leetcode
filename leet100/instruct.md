@@ -1983,3 +1983,602 @@ class Solution {
 }
 ```
 
+# 239 单调队列和优先队列
+
+```java
+class Solution {
+    public int[] maxSlidingWindow(int[] nums, int k) {
+        int n = nums.length;
+        PriorityQueue<int[]> pq = new PriorityQueue<int[]>(new Comparator<int[]>() {
+            public int compare(int[] pair1, int[] pair2) {
+                return pair1[0] != pair2[0] ? pair2[0] - pair1[0] : pair2[1] - pair1[1];
+            }
+        });
+        for (int i = 0; i < k; ++i) {
+            pq.offer(new int[]{nums[i], i});
+        }
+        int[] ans = new int[n - k + 1];
+        ans[0] = pq.peek()[0];
+        for (int i = k; i < n; ++i) {
+            pq.offer(new int[]{nums[i], i});
+            while (pq.peek()[1] <= i - k) {
+                pq.poll();
+            }
+            ans[i - k + 1] = pq.peek()[0];
+        }
+        return ans;
+    }
+}
+```
+
+```java
+class Solution {
+    public int[] maxSlidingWindow(int[] nums, int k) {
+        int n = nums.length;
+        Deque<Integer> deque = new LinkedList<Integer>();
+        for (int i = 0; i < k; ++i) {
+            while (!deque.isEmpty() && nums[i] >= nums[deque.peekLast()]) {
+                deque.pollLast();
+            }
+            deque.offerLast(i);
+        }
+
+        int[] ans = new int[n - k + 1];
+        ans[0] = nums[deque.peekFirst()];
+        for (int i = k; i < n; ++i) {
+            while (!deque.isEmpty() && nums[i] >= nums[deque.peekLast()]) {
+                deque.pollLast();
+            }
+            deque.offerLast(i);
+            while (deque.peekFirst() <= i - k) {
+                deque.pollFirst();
+            }
+            ans[i - k + 1] = nums[deque.peekFirst()];
+        }
+        return ans;
+    }
+}
+```
+
+# 240
+
+```
+class Solution {
+    private boolean binarySearch(int[][] matrix, int target, int start, boolean vertical) {
+        int lo = start;
+        int hi = vertical ? matrix[0].length-1 : matrix.length-1;
+
+        while (hi >= lo) {
+            int mid = (lo + hi)/2;
+            if (vertical) { // searching a column
+                if (matrix[start][mid] < target) {
+                    lo = mid + 1;
+                } else if (matrix[start][mid] > target) {
+                    hi = mid - 1;
+                } else {
+                    return true;
+                }
+            } else { // searching a row
+                if (matrix[mid][start] < target) {
+                    lo = mid + 1;
+                } else if (matrix[mid][start] > target) {
+                    hi = mid - 1;
+                } else {
+                    return true;
+                }
+            }
+        }
+
+        return false;
+    }
+
+    public boolean searchMatrix(int[][] matrix, int target) {
+        // an empty matrix obviously does not contain `target`
+        if (matrix == null || matrix.length == 0) {
+            return false;
+        }
+
+        // iterate over matrix diagonals
+        int shorterDim = Math.min(matrix.length, matrix[0].length);
+        for (int i = 0; i < shorterDim; i++) {
+            boolean verticalFound = binarySearch(matrix, target, i, true);
+            boolean horizontalFound = binarySearch(matrix, target, i, false);
+            if (verticalFound || horizontalFound) {
+                return true;
+            }
+        }
+        
+        return false; 
+    }
+}
+```
+
+# 253 优先队列 双元素快排 单调栈
+
+~~~
+class Solution {
+    public int minMeetingRooms(int[][] intervals) {
+
+    // Check for the base case. If there are no intervals, return 0
+    if (intervals.length == 0) {
+      return 0;
+    }
+
+    // Min heap
+    PriorityQueue<Integer> allocator =
+        new PriorityQueue<Integer>(
+            intervals.length,
+            new Comparator<Integer>() {
+              public int compare(Integer a, Integer b) {
+                return a - b;
+              }
+            });
+
+    // Sort the intervals by start time
+    Arrays.sort(
+        intervals,
+        new Comparator<int[]>() {
+          public int compare(final int[] a, final int[] b) {
+            return a[0] - b[0];
+          }
+        });
+
+    // Add the first meeting
+    allocator.add(intervals[0][1]);
+
+    // Iterate over remaining intervals
+    for (int i = 1; i < intervals.length; i++) {
+
+      // If the room due to free up the earliest is free, assign that room to this meeting.
+      if (intervals[i][0] >= allocator.peek()) {
+        allocator.poll();
+      }
+
+      // If a new room is to be assigned, then also we add to the heap,
+      // If an old room is allocated, then also we have to add to the heap with updated end time.
+      allocator.add(intervals[i][1]);
+    }
+
+    // The size of the heap tells us the minimum rooms required for all the meetings.
+    return allocator.size();
+  }
+}
+~~~
+
+```
+class Solution {
+    public int minMeetingRooms(int[][] intervals) {
+
+    // Check for the base case. If there are no intervals, return 0
+    if (intervals.length == 0) {
+      return 0;
+    }
+
+    Integer[] start = new Integer[intervals.length];
+    Integer[] end = new Integer[intervals.length];
+
+    for (int i = 0; i < intervals.length; i++) {
+      start[i] = intervals[i][0];
+      end[i] = intervals[i][1];
+    }
+
+    // Sort the intervals by end time
+    Arrays.sort(
+        end,
+        new Comparator<Integer>() {
+          public int compare(Integer a, Integer b) {
+            return a - b;
+          }
+        });
+
+    // Sort the intervals by start time
+    Arrays.sort(
+        start,
+        new Comparator<Integer>() {
+          public int compare(Integer a, Integer b) {
+            return a - b;
+          }
+        });
+
+    // The two pointers in the algorithm: e_ptr and s_ptr.
+    int startPointer = 0, endPointer = 0;
+
+    // Variables to keep track of maximum number of rooms used.
+    int usedRooms = 0;
+
+    // Iterate over intervals.
+    while (startPointer < intervals.length) {
+
+      // If there is a meeting that has ended by the time the meeting at `start_pointer` starts
+      if (start[startPointer] >= end[endPointer]) {
+        usedRooms -= 1;
+        endPointer += 1;
+      }
+
+      // We do this irrespective of whether a room frees up or not.
+      // If a room got free, then this used_rooms += 1 wouldn't have any effect. used_rooms would
+      // remain the same in that case. If no room was free, then this would increase used_rooms
+      usedRooms += 1;
+      startPointer += 1;
+
+    }
+
+    return usedRooms;
+  }
+}
+
+```
+
+```
+class Solution {
+    public int minMeetingRooms(int[][] intervals) {
+
+    // Check for the base case. If there are no intervals, return 0
+    if (intervals.length == 0) {
+      return 0;
+    }
+
+    Integer[] start = new Integer[intervals.length];
+    Integer[] end = new Integer[intervals.length];
+
+    for (int i = 0; i < intervals.length; i++) {
+      start[i] = intervals[i][0];
+      end[i] = intervals[i][1];
+    }
+
+    // Sort the intervals by end time
+    Arrays.sort(
+        end,
+        new Comparator<Integer>() {
+          public int compare(Integer a, Integer b) {
+            return a - b;
+          }
+        });
+
+    // Sort the intervals by start time
+    Arrays.sort(
+        start,
+        new Comparator<Integer>() {
+          public int compare(Integer a, Integer b) {
+            return a - b;
+          }
+        });
+
+    // The two pointers in the algorithm: e_ptr and s_ptr.
+    int startPointer = 0, endPointer = 0;
+
+    // Variables to keep track of maximum number of rooms used.
+    int usedRooms = 0;
+
+    // Iterate over intervals.
+    while (startPointer < intervals.length) {
+
+      // If there is a meeting that has ended by the time the meeting at `start_pointer` starts
+      if (start[startPointer] >= end[endPointer]) {
+        usedRooms -= 1;
+        endPointer += 1;
+      }
+
+      // We do this irrespective of whether a room frees up or not.
+      // If a room got free, then this used_rooms += 1 wouldn't have any effect. used_rooms would
+      // remain the same in that case. If no room was free, then this would increase used_rooms
+      usedRooms += 1;
+      startPointer += 1;
+
+    }
+
+    return usedRooms;
+  }
+}
+
+```
+
+```python
+#  Copyright (c) 2021
+#  @Author: xiaoweixiang
+class Solution:
+    def minMeetingRooms(self, intervals: List[List[int]]) -> int:
+        intervals.sort(key=lambda x: (x[0], -x[1]))
+        n, ans, tmp, length, b = 0, 0, [], len(intervals), []
+        while n < length:
+            for t in intervals:
+                if not tmp or tmp[-1][1] <= t[0]:
+                    tmp.append(t)
+                    n += 1
+                else:
+                    b.append(t)
+            ans, intervals, tmp, b = ans + 1, b, [], []
+        return ans
+```
+
+# 279
+
+```
+class Solution {
+    int ans = 9999999;
+    private void find(int remain,int step){
+        if (remain == 0) {
+            ans = Math.min(ans,step);
+        }else{
+            if (step<ans){
+                int currentMaxSqrt = (int) Math.round(Math.sqrt(remain));
+                for (int i = currentMaxSqrt;i>=1;i--){
+                    if (remain>=i*i){
+                        find(remain-i*i,step+1);
+                    }
+                }
+            }
+        }
+    }
+    public int numSquares(int n) {
+        find(n,0);   
+        return ans;
+    }
+}
+```
+
+# 283
+
+```
+class Solution {
+    public void moveZeroes(int[] nums) {
+        int indexNow = 0;
+        int indexNum = 0;
+        int m = nums.length;
+
+        while(indexNum<m){
+            if(nums[indexNum] != 0) {
+                nums[indexNow++] = nums[indexNum];
+            }
+            ++indexNum;
+        }
+
+        for(int i = indexNow; i < m; i++){
+            nums[i] = 0;
+        }
+    }
+}
+```
+
+# 287
+
+```
+class Solution {
+    public int findDuplicate(int[] nums) {
+        Set<Integer> hash = new HashSet<Integer>();
+        for (int i : nums){
+            if (!hash.add(i)) {
+                return i;
+            }
+        }
+        return 0;
+    }
+}
+```
+
+# 295 双优先队列
+
+```
+import java.util.PriorityQueue;
+
+public class MedianFinder {
+
+    /**
+     * 当前大顶堆和小顶堆的元素个数之和
+     */
+    private int count;
+    private PriorityQueue<Integer> maxheap;
+    private PriorityQueue<Integer> minheap;
+
+    /**
+     * initialize your data structure here.
+     */
+    public MedianFinder() {
+        count = 0;
+        maxheap = new PriorityQueue<>((x, y) -> y - x);
+        minheap = new PriorityQueue<>();
+    }
+
+    public void addNum(int num) {
+        count += 1;
+        maxheap.offer(num);
+        minheap.add(maxheap.poll());
+        // 如果两个堆合起来的元素个数是奇数，小顶堆要拿出堆顶元素给大顶堆
+        if ((count & 1) != 0) {
+            maxheap.add(minheap.poll());
+        }
+    }
+
+    public double findMedian() {
+        if ((count & 1) == 0) {
+            // 如果两个堆合起来的元素个数是偶数，数据流的中位数就是各自堆顶元素的平均值
+            return (double) (maxheap.peek() + minheap.peek()) / 2;
+        } else {
+            // 如果两个堆合起来的元素个数是奇数，数据流的中位数大顶堆的堆顶元素
+            return (double) maxheap.peek();
+        }
+    }
+}
+
+```
+
+# 297
+
+~~~
+
+public class Codec {
+    public String rserialize(TreeNode root, String str) {
+        if (root == null) {
+            str += "None,";
+        } else {
+            str += str.valueOf(root.val) + ",";
+            str = rserialize(root.left, str);
+            str = rserialize(root.right, str);
+        }
+        return str;
+    }
+  
+    public String serialize(TreeNode root) {
+        return rserialize(root, "");
+    }
+  
+    public TreeNode rdeserialize(List<String> l) {
+        if (l.get(0).equals("None")) {
+            l.remove(0);
+            return null;
+        }
+  
+        TreeNode root = new TreeNode(Integer.valueOf(l.get(0)));
+        l.remove(0);
+        root.left = rdeserialize(l);
+        root.right = rdeserialize(l);
+    
+        return root;
+    }
+  
+    public TreeNode deserialize(String data) {
+        String[] data_array = data.split(",");
+        List<String> data_list = new LinkedList<String>(Arrays.asList(data_array));
+        return rdeserialize(data_list);
+    }
+}
+~~~
+
+# 300
+
+~~~
+class Solution {
+    public int lengthOfLIS(int[] nums) {
+        if (nums.length == 0) {
+            return 0;
+        }
+        int[] dp = new int[nums.length];
+        dp[0] = 1;
+        int maxans = 1;
+        for (int i = 1; i < nums.length; i++) {
+            dp[i] = 1;
+            for (int j = 0; j < i; j++) {
+                if (nums[i] > nums[j]) {
+                    dp[i] = Math.max(dp[i], dp[j] + 1);
+                }
+            }
+            maxans = Math.max(maxans, dp[i]);
+        }
+        return maxans;
+    }
+}
+~~~
+
+# 309
+
+~~~
+class Solution {
+    public int maxProfit(int[] prices) {
+
+        int n = prices.length;
+        if (n==0) return 0;
+
+        int[][] f = new int[n][2];
+        f[0][0] = -prices[0];
+        f[0][1] = 0;
+        
+        for (int i=1;i<n;i++){
+            if (i == 1){
+                f[1][0] = Math.max(f[0][0],-prices[1]);
+                f[1][1] = Math.max(f[0][0]+prices[1],0);
+            }
+            if (i >= 2){
+                f[i][0] =Math.max(f[i-1][0],f[i-2][1]-prices[i]);
+                f[i][1] =Math.max(f[i-1][1],f[i-1][0]+prices[i]);
+            }
+        }
+
+
+        return f[n-1][1];
+    }
+}
+~~~
+
+# 322
+
+```
+public class Solution {
+    public int coinChange(int[] coins, int amount) {
+        int max = amount + 1;
+        int[] dp = new int[amount + 1];
+        Arrays.fill(dp, max);
+        dp[0] = 0;
+        for (int i = 1; i <= amount; i++) {
+            for (int j = 0; j < coins.length; j++) {
+                if (coins[j] <= i) {
+                    dp[i] = Math.min(dp[i], dp[i - coins[j]] + 1);
+                }
+            }
+        }
+        return dp[amount] > amount ? -1 : dp[amount];
+    }
+}
+```
+
+# 338
+
+```
+class Solution {
+    public int[] countBits(int num) {
+
+        int[] f = new int[num+1];
+
+        f[0]=0;
+        for(int i = 0; i<num/2;i++){
+
+            f[2*i] = f[i];
+            f[2*i+1] = f[i] +1;
+        }
+        if (num%2 == 0){
+            f[num] = f[num/2];
+        }else{
+            f[num-1] = f[num/2];
+            f[num] = f[num/2]+1; 
+        }
+        return f;
+    }
+}
+```
+
+# 347
+
+```
+
+class Solution {
+    public int[] topKFrequent(int[] nums, int k) {
+        Map<Integer, Integer> occurrences = new HashMap<Integer, Integer>();
+        for (int num : nums) {
+            occurrences.put(num, occurrences.getOrDefault(num, 0) + 1);
+        }
+
+        // int[] 的第一个元素代表数组的值，第二个元素代表了该值出现的次数
+        PriorityQueue<int[]> queue = new PriorityQueue<int[]>(new Comparator<int[]>() {
+            public int compare(int[] m, int[] n) {
+                return m[1] - n[1];
+            }
+        });
+        for (Map.Entry<Integer, Integer> entry : occurrences.entrySet()) {
+            int num = entry.getKey(), count = entry.getValue();
+            if (queue.size() == k) {
+                if (queue.peek()[1] < count) {
+                    queue.poll();
+                    queue.offer(new int[]{num, count});
+                }
+            } else {
+                queue.offer(new int[]{num, count});
+            }
+        }
+        int[] ret = new int[k];
+        for (int i = 0; i < k; ++i) {
+            ret[i] = queue.poll()[0];
+        }
+        return ret;
+    }
+}
+```
+
