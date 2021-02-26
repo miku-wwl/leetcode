@@ -1679,3 +1679,307 @@ class Solution {
 }
 ```
 
+200
+
+```
+class Solution {
+    void dfs(char[][] grid, int r, int c) {
+        int nr = grid.length;
+        int nc = grid[0].length;
+
+        if (r < 0 || c < 0 || r >= nr || c >= nc || grid[r][c] == '0') {
+            return;
+        }
+
+        grid[r][c] = '0';
+        dfs(grid, r - 1, c);
+        dfs(grid, r + 1, c);
+        dfs(grid, r, c - 1);
+        dfs(grid, r, c + 1);
+    }
+
+    public int numIslands(char[][] grid) {
+        if (grid == null || grid.length == 0) {
+            return 0;
+        }
+
+        int nr = grid.length;
+        int nc = grid[0].length;
+        int num_islands = 0;
+        for (int r = 0; r < nr; ++r) {
+            for (int c = 0; c < nc; ++c) {
+                if (grid[r][c] == '1') {
+                    ++num_islands;
+                    dfs(grid, r, c);
+                }
+            }
+        }
+
+        return num_islands;
+    }
+}
+```
+
+# 206
+
+```
+class Solution {
+    public ListNode reverseList(ListNode head) {
+        ListNode prev = null;
+        ListNode curr = head;
+        while (curr != null) {
+            ListNode next = curr.next;
+            curr.next = prev;
+            prev = curr;
+            curr = next;
+        }
+        return prev;
+    }
+}
+```
+
+# 207
+
+```
+class Solution {
+    List<List<Integer>> edges;
+    int[] indeg;
+
+    public boolean canFinish(int numCourses, int[][] prerequisites) {
+        edges = new ArrayList<List<Integer>>();
+        for (int i = 0; i < numCourses; ++i) {
+            edges.add(new ArrayList<Integer>());
+        }
+        indeg = new int[numCourses];
+        for (int[] info : prerequisites) {
+            edges.get(info[1]).add(info[0]);
+            ++indeg[info[0]];
+        }
+
+        Queue<Integer> queue = new LinkedList<Integer>();
+        for (int i = 0; i < numCourses; ++i) {
+            if (indeg[i] == 0) {
+                queue.offer(i);
+            }
+        }
+
+        int visited = 0;
+        while (!queue.isEmpty()) {
+            ++visited;
+            int u = queue.poll();
+            for (int v: edges.get(u)) {
+                --indeg[v];
+                if (indeg[v] == 0) {
+                    queue.offer(v);
+                }
+            }
+        }
+
+        return visited == numCourses;
+    }
+}
+```
+
+# 208
+
+```
+class Trie {
+private:
+    bool isEnd;
+    Trie* next[26];
+public:
+    Trie() {
+        isEnd = false;
+        memset(next, 0, sizeof(next));
+    }
+    
+    void insert(string word) {
+        Trie* node = this;
+        for (char c : word) {
+            if (node->next[c-'a'] == NULL) {
+                node->next[c-'a'] = new Trie();
+            }
+            node = node->next[c-'a'];
+        }
+        node->isEnd = true;
+    }
+    
+    bool search(string word) {
+        Trie* node = this;
+        for (char c : word) {
+            node = node->next[c - 'a'];
+            if (node == NULL) {
+                return false;
+            }
+        }
+        return node->isEnd;
+    }
+    
+    bool startsWith(string prefix) {
+        Trie* node = this;
+        for (char c : prefix) {
+            node = node->next[c-'a'];
+            if (node == NULL) {
+                return false;
+            }
+        }
+        return true;
+    }
+};
+```
+
+# 215
+
+```
+import java.util.PriorityQueue;
+
+public class Solution {
+
+    public int findKthLargest(int[] nums, int k) {
+        int len = nums.length;
+        // 使用一个含有 len 个元素的最大堆，lambda 表达式应写成：(a, b) -> b - a
+        PriorityQueue<Integer> maxHeap = new PriorityQueue<>(len, (a, b) -> b - a);
+        for (int i = 0; i < len; i++) {
+            maxHeap.add(nums[i]);
+        }
+        for (int i = 0; i < k - 1; i++) {
+            maxHeap.poll();
+        }
+        return maxHeap.peek();
+    }
+}
+```
+
+# 221
+
+```
+class Solution {
+    public int maximalSquare(char[][] matrix) {
+        int maxSide = 0;
+        if (matrix == null || matrix.length == 0 || matrix[0].length == 0) {
+            return maxSide;
+        }
+        int rows = matrix.length, columns = matrix[0].length;
+        int[][] dp = new int[rows][columns];
+        for (int i = 0; i < rows; i++) {
+            for (int j = 0; j < columns; j++) {
+                if (matrix[i][j] == '1') {
+                    if (i == 0 || j == 0) {
+                        dp[i][j] = 1;
+                    } else {
+                        dp[i][j] = Math.min(Math.min(dp[i - 1][j], dp[i][j - 1]), dp[i - 1][j - 1]) + 1;
+                    }
+                    maxSide = Math.max(maxSide, dp[i][j]);
+                }
+            }
+        }
+        int maxSquare = maxSide * maxSide;
+        return maxSquare;
+    }
+}
+```
+
+# 226
+
+```
+class Solution {
+    public TreeNode invertTree(TreeNode root) {
+        if (root == null) {
+            return null;
+        }
+        TreeNode left = invertTree(root.left);
+        TreeNode right = invertTree(root.right);
+        root.left = right;
+        root.right = left;
+        return root;
+    }
+}
+```
+
+# 230
+
+```
+/**
+ * Definition for a binary tree node.
+ * public class TreeNode {
+ *     int val;
+ *     TreeNode left;
+ *     TreeNode right;
+ *     TreeNode() {}
+ *     TreeNode(int val) { this.val = val; }
+ *     TreeNode(int val, TreeNode left, TreeNode right) {
+ *         this.val = val;
+ *         this.left = left;
+ *         this.right = right;
+ *     }
+ * }
+ */
+class Solution {
+    int K;
+    int Count = 0;
+    int ans;
+
+    private void find(TreeNode tree){
+        if (tree !=null){
+            find(tree.left);
+            Count+=1;
+            if (Count == K) ans = tree.val;
+            find(tree.right);
+        }
+        return;
+    }
+
+    public int kthSmallest(TreeNode root, int k) {
+        K = k;
+        find(root);
+        return ans;
+
+    }
+}
+```
+
+# 234
+
+```
+/**
+ * Definition for singly-linked list.
+ * public class ListNode {
+ *     int val;
+ *     ListNode next;
+ *     ListNode() {}
+ *     ListNode(int val) { this.val = val; }
+ *     ListNode(int val, ListNode next) { this.val = val; this.next = next; }
+ * }
+ */
+class Solution {
+    public boolean isPalindrome(ListNode head) {
+        ListNode list = head;
+        int count=0;
+        while (list!=null){
+            count++;
+            list=list.next;
+        }
+        int[] x = new int[count];
+        int[] y = new int [count];
+
+        list =head;
+        int search = -1;
+
+        while (list!=null){
+            search++;
+            x[search]=list.val;
+            y[count-1-search]=list.val;
+            list=list.next;
+        }
+
+        for (int i=0;i<count;i++)
+            if (x[i]!=y[i]) return false;
+        
+        return true;
+
+
+
+    }
+}
+```
+
