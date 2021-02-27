@@ -2796,3 +2796,125 @@ class Solution {
 }
 ```
 
+# 448
+
+~~~
+class Solution {
+    public List<Integer> findDisappearedNumbers(int[] nums) {
+        List<Integer> list = new ArrayList<Integer>();
+        Set<Integer> set = new HashSet<Integer>();
+        for (int i:nums) set.add(i);
+        for (int i=1;i<=nums.length;i++) 
+            if (!set.contains(i)){
+                list.add(i);
+            }
+        return list;    
+    }
+}
+~~~
+
+# 494
+
+~~~
+class Solution {
+    int count = 0;
+    int n;
+    int s;
+    private void find(int mark, int carry, int sum,int[] nums){
+        if (carry == n){
+            if (sum == s){
+                count += 1;
+                return ;
+            }else{
+                return;
+            }         
+        }else{
+            find(1,carry+1,sum+mark*nums[carry],nums);
+            find(-1,carry+1,sum+mark*nums[carry],nums);
+        }
+        return ;
+    }
+    public int findTargetSumWays(int[] nums, int S) {
+        n = nums.length;
+        s = S;
+
+        find(1,0,0,nums);
+        find(-1,0,0,nums);
+
+        return count/2;
+    }
+}
+~~~
+
+# 543
+
+~~~
+/**
+ * Definition for a binary tree node.
+ * public class TreeNode {
+ *     int val;
+ *     TreeNode left;
+ *     TreeNode right;
+ *     TreeNode(int x) { val = x; }
+ * }
+ */
+class Solution {
+    int length = -1;
+    private int find(TreeNode tree){
+        if (tree == null){
+            return 0;
+        }else{
+            int x = find(tree.left);
+            int y = find(tree.right);
+            length = Math.max(length,x+y+1);
+            return Math.max(x+1,y+1);
+        }
+    }
+    public int diameterOfBinaryTree(TreeNode root) {
+        if (root==null) return 0;
+        find(root);       
+        return length-1;
+    }
+}
+~~~
+
+# 560 HashMap
+
+~~~
+public class Solution {
+    public int subarraySum(int[] nums, int k) {
+        int count = 0, pre = 0;
+        Map < Integer, Integer > mp = new HashMap < > ();
+        mp.put(0, 1);
+        for (int i = 0; i < nums.length; i++) {
+            pre += nums[i];
+            if (mp.containsKey(pre - k)) {
+                count += mp.get(pre - k);
+            }
+            mp.put(pre, mp.getOrDefault(pre, 0) + 1);
+        }
+        return count;
+    }
+}
+~~~
+
+# 617
+
+```
+class Solution {
+    public TreeNode mergeTrees(TreeNode t1, TreeNode t2) {
+        if (t1 == null) {
+            return t2;
+        }
+        if (t2 == null) {
+            return t1;
+        }
+        TreeNode merged = new TreeNode(t1.val + t2.val);
+        merged.left = mergeTrees(t1.left, t2.left);
+        merged.right = mergeTrees(t1.right, t2.right);
+        return merged;
+    }
+}
+
+```
+
