@@ -2918,3 +2918,114 @@ class Solution {
 
 ```
 
+# 621
+
+```
+class Solution {
+    public int leastInterval(char[] tasks, int n) {
+        int[] temp = new int[26];
+        int countMaxTask = 0;
+        int maxTask=0;
+        for(char c:tasks){
+            temp[c-'A']++;
+            maxTask = Math.max(temp[c-'A'],maxTask);
+        }
+        for(int i=0;i<26;i++){
+            if(temp[i]==maxTask){
+                countMaxTask++;
+            }
+        }
+        return Math.max(tasks.length,(maxTask-1)*(n+1)+countMaxTask);
+    }
+}
+```
+
+# 647
+
+~~~
+class Solution {
+  public int countSubstrings(String s) {
+    int count = 0;
+    for (int i=0;i<s.length();i++)
+        for (int j=i;j<s.length();j++){
+            String str = s.substring(i,j+1);
+            String A = str;
+            String B = new StringBuilder(str).reverse().toString();
+            if (A.equals(B)) {count++;
+        } 
+    }
+    return count;
+  }
+}
+~~~
+
+# 739 单调栈
+
+```
+class Solution {
+    public int[] dailyTemperatures(int[] T) {
+        int length = T.length;
+        int[] ans = new int[length];
+        int[] next = new int[101];
+        Arrays.fill(next, Integer.MAX_VALUE);
+        for (int i = length - 1; i >= 0; --i) {
+            int warmerIndex = Integer.MAX_VALUE;
+            for (int t = T[i] + 1; t <= 100; ++t) {
+                if (next[t] < warmerIndex) {
+                    warmerIndex = next[t];
+                }
+            }
+            if (warmerIndex < Integer.MAX_VALUE) {
+                ans[i] = warmerIndex - i;
+            }
+            next[T[i]] = i;
+        }
+        return ans;
+    }
+}
+
+```
+
+```
+class Solution {
+    public int[] dailyTemperatures(int[] T) {
+        int length = T.length;
+        int[] ans = new int[length];
+        Deque<Integer> stack = new LinkedList<Integer>();
+        for (int i = 0; i < length; i++) {
+            int temperature = T[i];
+            while (!stack.isEmpty() && temperature > T[stack.peek()]) {
+                int prevIndex = stack.pop();
+                ans[prevIndex] = i - prevIndex;
+            }
+            stack.push(i);
+        }
+        return ans;
+    }
+}
+```
+
+# 763
+
+```
+class Solution {
+    public List<Integer> partitionLabels(String S) {
+        int[] last = new int[26];
+        int length = S.length();
+        for (int i = 0; i < length; i++) {
+            last[S.charAt(i) - 'a'] = i;
+        }
+        List<Integer> partition = new ArrayList<Integer>();
+        int start = 0, end = 0;
+        for (int i = 0; i < length; i++) {
+            end = Math.max(end, last[S.charAt(i) - 'a']);
+            if (i == end) {
+                partition.add(end - start + 1);
+                start = end + 1;
+            }
+        }
+        return partition;
+    }
+}
+```
+
