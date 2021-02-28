@@ -2,10 +2,33 @@ import java.util.Comparator;
 import java.util.PriorityQueue;
 import java.util.Queue;
 
+
+/*
+PriorityQueue.add();
+PriorityQueue.poll();
+PriorityQueue.isEmpty();
+
+*/
+class Student {
+    public int id;
+    public String name;
+
+    public Student(int id, String name) {
+        this.id = id;
+        this.name = name;
+    }
+
+    public String toString() {
+        return id + "-" + name;
+    }
+}
+
 public class PriorityQueueTest {
+    
+
 
     public static void main(String[] args) {
-        Queue<Integer> queue1 = new PriorityQueue<Integer>();
+        Queue<Integer> queue1 = new PriorityQueue<Integer>((a,b)->b-a);
         queue1.add(2);
         queue1.add(1);
         queue1.add(3);
@@ -33,17 +56,5 @@ public class PriorityQueueTest {
         }
     }
 
-    public static class Student {
-        private int id;
-        private String name;
-
-        public Student(int id, String name) {
-            this.id = id;
-            this.name = name;
-        }
-
-        public String toString() {
-            return id + "-" + name;
-        }
-    }
+    
 }
