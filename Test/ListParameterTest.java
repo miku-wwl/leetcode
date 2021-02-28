@@ -1,7 +1,7 @@
 import java.util.ArrayList;
 import java.util.List;
 
-public class ListTest {
+public class ListParameterTest {
     static List<Integer> list = new ArrayList<Integer>();
     static List<Integer> list2 = new ArrayList<Integer>();
     private static void listtest(List<Integer> list, int n) {
