@@ -33,6 +33,7 @@ public class PriorityQueueTest {
         queue1.add(1);
         queue1.add(3);
 
+        queue1.poll();
         while (!queue1.isEmpty()) {
             Integer i = queue1.poll();
             System.out.println(i);

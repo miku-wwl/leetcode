@@ -61,5 +61,13 @@ public class HashMapDemo {
          }
          
          System.out.println(test);
+
+
+         HashMap<Integer, Integer> Order = new HashMap<Integer, Integer>();
+         Order.put(1,1);
+         Order.put(3,1);
+         Order.put(2,1);
+         System.out.println(Order);
+
     }
 }
