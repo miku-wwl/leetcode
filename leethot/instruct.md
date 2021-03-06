@@ -164,6 +164,20 @@ class Solution {
 
 
 
+# 9 String 相等 str.equals(str2)
+
+~~~
+class Solution {
+    public boolean isPalindrome(int x) {
+        if (x<0) return false;
+        String str = new Integer(x).toString();
+        String str2 = new StringBuilder(str).reverse().toString();
+        if (str.equals(str2)) return true;
+        return false;
+    }
+}
+~~~
+
 
 
 # 10
@@ -207,6 +221,43 @@ class Solution {
     }
 }
 ~~~
+
+# 14
+
+~~~
+class Solution {
+    public String longestCommonPrefix(String[] strs) {
+        if (strs.length==0) return "";
+
+        int miniLength=9999;
+        for (String str : strs){
+            miniLength = Math.min(miniLength,str.length());
+        }
+
+        String answer = "";
+        boolean check = true;
+        for (int i=0;i<miniLength && check;i++){
+            char c = strs[0].charAt(i);
+            for (String str : strs){
+                char strC = str.charAt(i);
+                if (c!=strC){
+                    check = false;
+                    break;
+                }
+            }
+            if (check){
+                answer += c;
+            }
+        }
+
+        return answer;
+    }
+}
+~~~
+
+
+
+
 
 # 15
 
@@ -459,6 +510,63 @@ class Solution {
     }
 }
 ```
+
+# 31 单调栈  （不要用变量指代存栈顶元素）
+
+~~~
+class Solution {
+    public void nextPermutation(int[] nums) {
+        boolean check = true;
+        int n = nums.length;
+        int point=0;
+        for (int i=0;i<n-1;i++){
+            if (nums[i]<nums[i+1]){
+               check = false;
+               break;
+            }
+        }
+        if (check) {
+            Arrays.sort(nums);
+            return;
+        }
+
+
+        Stack<Integer> stack = new Stack<Integer>();
+        stack.push(n-1);
+
+        for (int i=n-2;i>=0;i--){
+
+            if (nums[i]>=nums[stack.peek()]){
+                stack.push(i);
+                continue;
+            }
+
+            int store = 0;
+            while (!stack.isEmpty() && nums[i]<nums[stack.peek()]){
+               store = stack.peek();
+               stack.pop();
+            }
+
+            int temp = nums[i];
+            nums[i] = nums[store];
+            nums[store] = temp;
+            point = i;
+            break;
+        }
+
+        for (int i=point+1;i<n-1;i++)
+            for (int j=i+1;j<n;j++){
+                if (nums[i]>nums[j]){
+                    int temp = nums[i];
+                    nums[i] = nums[j];
+                    nums[j] = temp;
+                }
+            }
+    }
+}
+~~~
+
+
 
 # 32
 
@@ -1071,6 +1179,68 @@ class Solution {
 }
 ~~~
 
+# 88  Arrays.sort(int[]);
+
+~~~
+class Solution {
+    public void merge(int[] nums1, int m, int[] nums2, int n) {
+        for (int i=0;i<n;i++){
+            nums1[m+i] = nums2[i];
+        }
+        Arrays.sort(nums1);
+        return;
+    }
+}
+~~~
+
+
+
+
+
+
+
+# 92 部分 反转链表 链表转线性表
+
+~~~
+/**
+ * Definition for singly-linked list.
+ * public class ListNode {
+ *     int val;
+ *     ListNode next;
+ *     ListNode() {}
+ *     ListNode(int val) { this.val = val; }
+ *     ListNode(int val, ListNode next) { this.val = val; this.next = next; }
+ * }
+ */
+class Solution {
+    public ListNode reverseBetween(ListNode head, int left, int right) {
+        if (head == null) return null;
+
+        List<ListNode> list = new ArrayList<ListNode>();
+        ListNode node = head;
+
+        ListNode realHead = new ListNode();
+        realHead.next = head;
+
+        list.add(realHead);
+
+        while(node != null){
+            list.add(node);
+            node = node.next;
+        }
+
+        list.get(left-1).next = list.get(right);
+        list.get(left).next = list.get(right).next;
+        for (int i = right;i>left;i--){
+            list.get(i).next = list.get(i-1);
+        }
+        
+
+    return realHead.next;
+    }
+}	
+~~~
+
 
 
 # 94
@@ -1444,6 +1614,39 @@ public class Solution {
     }
 }
 ```
+
+# 143 链表转线性表
+
+~~~
+class Solution {
+    public void reorderList(ListNode head) {
+        if (head == null) {
+            return;
+        }
+        List<ListNode> list = new ArrayList<ListNode>();
+        ListNode node = head;
+        while (node != null) {
+            list.add(node);
+            node = node.next;
+        }
+        int i = 0, j = list.size() - 1;
+        while (i < j) {
+            list.get(i).next = list.get(j);
+            i++;
+            if (i == j) {
+                break;
+            }
+            list.get(j).next = list.get(i);
+            j--;
+        }
+        list.get(i).next = null;
+    }
+}
+~~~
+
+
+
+
 
 # 148
 
@@ -3099,4 +3302,54 @@ class Solution {
     }
 }
 ```
+
+# Sword03
+
+~~~
+class Solution {
+    public int findRepeatNumber(int[] nums) {
+        Set<Integer> set = new HashSet<Integer>();
+        for (int i:nums){
+            if (!set.add(i)){
+                return i;
+            }
+        }
+        return 0;
+    }
+}
+~~~
+
+# Sword24  链表转线性表
+
+~~~
+/**
+ * Definition for singly-linked list.
+ * public class ListNode {
+ *     int val;
+ *     ListNode next;
+ *     ListNode(int x) { val = x; }
+ * }
+ */
+class Solution {
+    public ListNode reverseList(ListNode head) {
+        if (head == null) {
+            return null;
+        }
+
+        List<ListNode> list = new ArrayList<ListNode>();
+        ListNode node = head;
+
+        while (node != null) {
+            list.add(node);
+            node = node.next;
+        }
+
+        for (int i = list.size()-1;i>=1;i--){
+            list.get(i).next = list.get(i-1);
+            list.get(0).next = null;
+        }
+        return list.get(list.size()-1);
+    }
+}
+~~~
 
