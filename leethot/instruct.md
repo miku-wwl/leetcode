@@ -138,6 +138,54 @@ class Solution {
 }
 ```
 
+# 6 字符串繁琐操作
+
+~~~
+class Solution {
+    String str;
+    int n;
+    int strLength;
+    String[] strs;
+    private void deploy(int index, int local, int direction){
+        if (strLength == index) return;
+
+        int newDirection = direction;
+        if (local == 0 ) newDirection = 1;
+        if (local == n-1) newDirection = -1;
+
+        strs[local] += str.charAt(index);
+        deploy(index+1,local+newDirection,newDirection); 
+        return;
+    }
+    
+    public String convert(String s, int numRows) {
+        if (numRows==1) {
+            return s;
+        }
+
+        strs = new String[numRows];
+        for (int i=0;i<numRows;i++){
+            strs[i] =  "";
+        }
+
+        str = s;
+        n = numRows;
+        strLength = s.length();
+        deploy(0,0,1);
+
+
+        for (int i=1;i<numRows;i++){
+            strs[0] += strs[i];
+        }
+        return strs[0];
+    }
+}
+~~~
+
+
+
+
+
 # 7 字符串各种操作
 
 ~~~
@@ -511,6 +559,107 @@ class Solution {
 }
 ```
 
+# 25 链表转线性表
+
+~~~
+/**
+ * Definition for singly-linked list.
+ * public class ListNode {
+ *     int val;
+ *     ListNode next;
+ *     ListNode() {}
+ *     ListNode(int val) { this.val = val; }
+ *     ListNode(int val, ListNode next) { this.val = val; this.next = next; }
+ * }
+ */
+class Solution {
+    
+    public ListNode reverseKGroup(ListNode head, int k) {
+        ListNode realHead = new ListNode(-1,head);
+
+        
+        List<ListNode> list = new ArrayList<ListNode>();
+        ListNode node = realHead;
+        while (node!=null){
+            list.add(node);
+            node=node.next;
+        }
+        int sum = 0;
+        while (sum+k<=list.size()-1){
+            list.get(sum).next = list.get(sum+k);
+            list.get(sum+1).next = list.get(sum+k).next;
+            for (int i=sum+k;i>sum+1;i--){
+                list.get(i).next = list.get(i-1);
+            }
+
+            list.clear();
+            node = realHead;
+            while (node!=null){
+                list.add(node);
+                node=node.next;
+            }
+            
+            sum+=k;
+        }
+
+        return realHead.next;
+        
+    }
+}
+~~~
+
+~~~
+/**
+ * Definition for singly-linked list.
+ * public class ListNode {
+ *     int val;
+ *     ListNode next;
+ *     ListNode() {}
+ *     ListNode(int val) { this.val = val; }
+ *     ListNode(int val, ListNode next) { this.val = val; this.next = next; }
+ * }
+ */
+class Solution {
+    
+    public ListNode reverseKGroup(ListNode head, int k) {
+        ListNode realHead = new ListNode(-1,head);
+
+        
+        List<ListNode> list = new ArrayList<ListNode>();
+        ListNode node = realHead;
+        while (node!=null){
+            list.add(node);
+            node=node.next;
+        }
+        int sum = 0;
+        while (sum+k<=list.size()-1){
+            if (sum==0){
+                list.get(sum).next = list.get(sum+k);
+                list.get(sum+1).next = list.get(sum+k).next;
+                for (int i=sum+k;i>sum+1;i--){
+                    list.get(i).next = list.get(i-1);
+                }
+            }else{
+                list.get(sum-k+1).next = list.get(sum+k);
+                list.get(sum+1).next = list.get(sum+k).next;
+                for (int i=sum+k;i>sum+1;i--){
+                    list.get(i).next = list.get(i-1);
+                }
+            }
+           
+            sum+=k;
+        }
+
+        return realHead.next;
+        
+    }
+}
+~~~
+
+
+
+
+
 # 31 单调栈  （不要用变量指代存栈顶元素）
 
 ~~~
@@ -687,6 +836,54 @@ class Solution {
 }
 ```
 
+# 40 搜索 List查重
+
+~~~
+class Solution {
+    List<int[]> freq = new ArrayList<int[]>();
+    List<List<Integer>> ans = new ArrayList<List<Integer>>();
+    List<Integer> sequence = new ArrayList<Integer>();
+
+    public List<List<Integer>> combinationSum2(int[] candidates, int target) {
+        Arrays.sort(candidates);
+        for (int num : candidates) {
+            int size = freq.size();
+            if (freq.isEmpty() || num != freq.get(size - 1)[0]) {
+                freq.add(new int[]{num, 1});
+            } else {
+                ++freq.get(size - 1)[1];
+            }
+        }
+        dfs(0, target);
+        return ans;
+    }
+
+    public void dfs(int pos, int rest) {
+        if (rest == 0) {
+            ans.add(new ArrayList<Integer>(sequence));
+            return;
+        }
+        if (pos == freq.size() || rest < freq.get(pos)[0]) {
+            return;
+        }
+
+        dfs(pos + 1, rest);
+
+        int most = Math.min(rest / freq.get(pos)[0], freq.get(pos)[1]);
+        for (int i = 1; i <= most; ++i) {
+            sequence.add(freq.get(pos)[0]);
+            dfs(pos + 1, rest - i * freq.get(pos)[0]);
+        }
+        for (int i = 1; i <= most; ++i) {
+            sequence.remove(sequence.size() - 1);
+        }
+    }
+}
+
+~~~
+
+
+
 # 41
 
 ```
@@ -827,6 +1024,48 @@ class Solution {
     }
 }
 ```
+
+# 54
+
+~~~
+class Solution {
+    int[][] map;
+    int[][] _matrix;
+    
+    int[] directX={0,1,0,-1};
+    int[] directY={1,0,-1,0};
+    
+    int m,n;
+    List<Integer> list =new ArrayList<Integer>();
+    
+    private void find(int x, int y,int direct){
+        map[x][y] = 1;
+        list.add(_matrix[x][y]);
+        if (x+directX[direct]>=m || x+directX[direct]<0 || y+directY[direct]>=n || y+directY[direct]<0){
+            direct = (direct+1)%4;
+        }else if(map[x+directX[direct]][y+directY[direct]] == 1){
+            direct = (direct+1)%4;
+        }
+        if (x+directX[direct]<m && x+directX[direct]>=0 && y+directY[direct]<n && y+directY[direct]>=0 && map[x+directX[direct]][y+directY[direct]] == 0){
+            find(x+directX[direct],y+directY[direct],direct);
+        }
+        
+    } 
+    public List<Integer> spiralOrder(int[][] matrix) {
+        _matrix = matrix;
+
+        m=matrix.length;
+        n=matrix[0].length;
+        map = new int[m][n];
+        find(0,0,0);
+
+        return list;
+
+    }
+}
+~~~
+
+
 
 # 55
 
@@ -2878,6 +3117,52 @@ class Solution {
 }
 ~~~
 
+# 415 高精度加法
+
+~~~
+class Solution {
+    public String addStrings(String num1, String num2) {
+        String temp;
+        if (num1.length()<num2.length()){
+            temp = num1;
+            num1 = num2;
+            num2 = temp;
+        }
+        int[] a = new int[num1.length()+1];
+        int[] b = new int[num1.length()+1];
+
+        for (int i = num1.length()-1;i>=0;i--){
+            a[num1.length()-i-1] = num1.charAt(i)-48;
+        }
+           
+        for (int i = num2.length()-1;i>=0;i--){
+            b[num2.length()-i-1] = num2.charAt(i)-48;
+        }
+        
+
+
+        for (int i = 0;i<num1.length();i++){
+            a[i]+=b[i];
+            if (a[i]>=10){
+                a[i]-=10;
+                a[i+1]+=1;
+            }
+        }
+
+        String answer = "";
+        if (a[num1.length()]!=0){
+            answer += (char) (a[num1.length()] + 48);
+        }
+        for (int i = num1.length()-1;i>=0;i--){
+            answer += (char) (a[i] + 48);
+        }
+       return answer;
+    }
+}
+~~~
+
+
+
 # 416
 
 ~~~
@@ -3303,6 +3588,53 @@ class Solution {
 }
 ```
 
+# 912
+
+~~~
+class Solution {
+    public int[] sortArray(int[] nums) {
+        Arrays.sort(nums);
+        return nums;
+    }
+}
+~~~
+
+
+
+# 1114 并发 信号量
+
+~~~
+class Foo {
+    public Semaphore seam1 = new Semaphore(0);  
+    public Semaphore seam2 = new Semaphore(0);
+
+    public Foo() {
+        
+    }
+
+    public void first(Runnable printFirst) throws InterruptedException {
+        
+        
+        printFirst.run();
+        seam1.release();
+    }
+
+    public void second(Runnable printSecond) throws InterruptedException {
+        seam1.acquire();
+        printSecond.run();
+        seam2.release();
+    }
+
+    public void third(Runnable printThird) throws InterruptedException {
+        
+        seam2.acquire();
+        printThird.run();
+    }
+}
+~~~
+
+
+
 # Sword03
 
 ~~~
@@ -3315,6 +3647,65 @@ class Solution {
             }
         }
         return 0;
+    }
+}
+~~~
+
+# Sword09 双栈模拟队列
+
+~~~
+class CQueue {
+    Stack<Integer> s1 = new Stack<Integer>();
+    Stack<Integer> s2 = new Stack<Integer>();
+
+    public CQueue() {
+
+    }
+    
+    public void appendTail(int value) {
+        s1.push(value);
+    }
+    
+    public int deleteHead() {
+        if (s1.size()==0 && s2.size()==0) return -1;
+        if (s2.size()==0){
+            while (!s1.isEmpty()){
+                s2.push(s1.pop());
+            }
+        }
+        return s2.pop();
+    }
+}
+
+/**
+ * Your CQueue object will be instantiated and called as such:
+ * CQueue obj = new CQueue();
+ * obj.appendTail(value);
+ * int param_2 = obj.deleteHead();
+ */
+~~~
+
+
+
+# Sword22
+
+~~~
+/**
+ * Definition for singly-linked list.
+ * public class ListNode {
+ *     int val;
+ *     ListNode next;
+ *     ListNode(int x) { val = x; }
+ * }
+ */
+class Solution {
+    public ListNode getKthFromEnd(ListNode head, int k) {
+        List<ListNode> list = new ArrayList<ListNode>();
+        while (head!=null){
+            list.add(head);
+            head=head.next;
+        }
+        return list.get(list.size()-k);
     }
 }
 ~~~
@@ -3349,6 +3740,111 @@ class Solution {
             list.get(0).next = null;
         }
         return list.get(list.size()-1);
+    }
+}
+~~~
+
+# Sword42 简单动态规划
+
+~~~
+class Solution {
+    public int maxSubArray(int[] nums) {
+        int[] f = new int[nums.length];
+        f[0]=nums[0];
+        int ans = f[0];
+        for (int i=1;i<nums.length;i++){
+            f[i] = Math.max(nums[i],f[i-1]+nums[i]);
+            ans  = Math.max(ans,f[i]);
+        }    
+        return ans;
+    }
+}
+~~~
+
+# Inteview_1625
+
+~~~
+public class LRUCache {
+    class DLinkedNode {
+        int key;
+        int value;
+        DLinkedNode prev;
+        DLinkedNode next;
+        public DLinkedNode() {}
+        public DLinkedNode(int _key, int _value) {key = _key; value = _value;}
+    }
+
+    private Map<Integer, DLinkedNode> cache = new HashMap<Integer, DLinkedNode>();
+    private int size;
+    private int capacity;
+    private DLinkedNode head, tail;
+
+    public LRUCache(int capacity) {
+        this.size = 0;
+        this.capacity = capacity;
+        // 使用伪头部和伪尾部节点
+        head = new DLinkedNode();
+        tail = new DLinkedNode();
+        head.next = tail;
+        tail.prev = head;
+    }
+
+    public int get(int key) {
+        DLinkedNode node = cache.get(key);
+        if (node == null) {
+            return -1;
+        }
+        // 如果 key 存在，先通过哈希表定位，再移到头部
+        moveToHead(node);
+        return node.value;
+    }
+
+    public void put(int key, int value) {
+        DLinkedNode node = cache.get(key);
+        if (node == null) {
+            // 如果 key 不存在，创建一个新的节点
+            DLinkedNode newNode = new DLinkedNode(key, value);
+            // 添加进哈希表
+            cache.put(key, newNode);
+            // 添加至双向链表的头部
+            addToHead(newNode);
+            ++size;
+            if (size > capacity) {
+                // 如果超出容量，删除双向链表的尾部节点
+                DLinkedNode tail = removeTail();
+                // 删除哈希表中对应的项
+                cache.remove(tail.key);
+                --size;
+            }
+        }
+        else {
+            // 如果 key 存在，先通过哈希表定位，再修改 value，并移到头部
+            node.value = value;
+            moveToHead(node);
+        }
+    }
+
+    private void addToHead(DLinkedNode node) {
+        node.prev = head;
+        node.next = head.next;
+        head.next.prev = node;
+        head.next = node;
+    }
+
+    private void removeNode(DLinkedNode node) {
+        node.prev.next = node.next;
+        node.next.prev = node.prev;
+    }
+
+    private void moveToHead(DLinkedNode node) {
+        removeNode(node);
+        addToHead(node);
+    }
+
+    private DLinkedNode removeTail() {
+        DLinkedNode res = tail.prev;
+        removeNode(res);
+        return res;
     }
 }
 ~~~
