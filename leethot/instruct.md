@@ -323,6 +323,89 @@ class Solution {
 }
 ~~~
 
+# 13
+
+~~~
+class Solution {
+    public int romanToInt(String s) {
+        boolean t = true;
+        while(t){
+            boolean f;
+            f=false;
+            for (int i=0;i+1<s.length();i++){
+                if (s.charAt(i) =='I' && s.charAt(i+1) =='V'){
+                    s = s.substring(0,i) + "IIII"+s.substring(i+2,s.length());
+                    f=true;
+                    break;
+                }
+                if (s.charAt(i) =='I' && s.charAt(i+1) =='X'){
+                    s = s.substring(0,i) + "VIIII"+s.substring(i+2,s.length());
+                    f=true;
+                    break;
+                }
+                if (s.charAt(i) =='X' && s.charAt(i+1) =='L'){
+                    s = s.substring(0,i) + "XXXX"+s.substring(i+2,s.length());
+                    f=true;
+                    break;
+                }
+                if (s.charAt(i) =='X' && s.charAt(i+1) =='C'){
+                    s = s.substring(0,i) + "LXXXX"+s.substring(i+2,s.length());
+                    f=true;
+                    break;
+                }
+                if (s.charAt(i) =='C' && s.charAt(i+1) =='D'){
+                    s = s.substring(0,i) + "CCCC"+s.substring(i+2,s.length());
+                    f=true;
+                    break;
+                }
+                if (s.charAt(i) =='C' && s.charAt(i+1) =='M'){
+                    s = s.substring(0,i) + "DCCCC"+s.substring(i+2,s.length());
+                    f=true;
+                    break;
+                }
+            }
+            t=f;
+        }
+    int ans = 0;
+    for (int i=0;i<s.length();i++){
+        if (s.charAt(i) == 'I'){
+            ans+=1;
+        }
+        if (s.charAt(i) == 'V'){
+            ans+=5;
+        }
+        if (s.charAt(i) == 'X'){
+            ans+=10;
+        }
+        if (s.charAt(i) == 'L'){
+            ans+=50;
+        }
+        if (s.charAt(i) == 'C'){
+            ans+=100;
+        }
+        if (s.charAt(i) == 'D'){
+            ans+=500;
+        }
+        if (s.charAt(i) == 'M'){
+            ans+=1000;
+        }
+    }
+    return ans;
+    }
+}
+
+
+// IV = IIII
+// IX = VIIII
+// XL = XXXX
+// XC = LXXXX
+// CD = CCCC
+// CM = DCCCC
+
+~~~
+
+
+
 # 14
 
 ~~~
@@ -1504,6 +1587,37 @@ class Solution {
     }
 }
 ```
+
+# 83
+
+~~~
+/**
+ * Definition for singly-linked list.
+ * public class ListNode {
+ *     int val;
+ *     ListNode next;
+ *     ListNode() {}
+ *     ListNode(int val) { this.val = val; }
+ *     ListNode(int val, ListNode next) { this.val = val; this.next = next; }
+ * }
+ */
+class Solution {
+    private void delete(ListNode node){
+        if (node!=null){
+            while (node.next!=null && node.next.val == node.val){
+                node.next = node.next.next;
+            }
+            delete(node.next);
+        }
+    }
+    public ListNode deleteDuplicates(ListNode head) {
+        delete(head);
+        return head;
+    }
+}
+~~~
+
+
 
 # 84 单调栈
 
@@ -3996,6 +4110,32 @@ class Solution {
     }
 }
 ~~~
+
+# Sword04
+
+~~~
+class Solution {
+    public boolean findNumberIn2DArray(int[][] matrix, int target) {
+        if(matrix == null || matrix.length == 0) {
+            return false;
+        }
+        int m = matrix.length, n = matrix[0].length;
+        int row = 0, col = n - 1;
+        while(row < m && col >= 0) {
+            if(matrix[row][col] > target) {
+                col--;
+            }else if(matrix[row][col] < target) {
+                row++;
+            }else {
+                return true;
+            }
+        }
+        return false;
+    }
+}
+~~~
+
+
 
 # Sword09 双栈模拟队列
 
