@@ -485,6 +485,59 @@ int n = nums.length;
         return ans;
 ~~~
 
+# 16 排序+双指针，和15类似
+
+~~~
+class Solution {
+    public int threeSumClosest(int[] nums, int target) {
+        Arrays.sort(nums);
+        int n = nums.length;
+        int best = 10000000;
+
+        // 枚举 a
+        for (int i = 0; i < n; ++i) {
+            // 保证和上一次枚举的元素不相等
+            if (i > 0 && nums[i] == nums[i - 1]) {
+                continue;
+            }
+            // 使用双指针枚举 b 和 c
+            int j = i + 1, k = n - 1;
+            while (j < k) {
+                int sum = nums[i] + nums[j] + nums[k];
+                // 如果和为 target 直接返回答案
+                if (sum == target) {
+                    return target;
+                }
+                // 根据差值的绝对值来更新答案
+                if (Math.abs(sum - target) < Math.abs(best - target)) {
+                    best = sum;
+                }
+                if (sum > target) {
+                    // 如果和大于 target，移动 c 对应的指针
+                    int k0 = k - 1;
+                    // 移动到下一个不相等的元素
+                    while (j < k0 && nums[k0] == nums[k]) {
+                        --k0;
+                    }
+                    k = k0;
+                } else {
+                    // 如果和小于 target，移动 b 对应的指针
+                    int j0 = j + 1;
+                    // 移动到下一个不相等的元素
+                    while (j0 < k && nums[j0] == nums[j]) {
+                        ++j0;
+                    }
+                    j = j0;
+                }
+            }
+        }
+        return best;
+    }
+}
+~~~
+
+
+
 # 17
 
 ~~~
@@ -1201,6 +1254,55 @@ class Solution {
     }
 }
 ```
+
+# 47
+
+~~~
+class Solution {
+    Set<List<Integer>> set = new HashSet<List<Integer>>();
+    int length;
+    int[] _nums;
+    private void dfs(int current,int[] a){
+        if (current==length-1){
+            List<Integer> list = new ArrayList<Integer>();
+            for (int i : a){
+                list.add(_nums[i]);
+            }
+            set.add(list);
+            return;
+        }else{
+            int[] check = new int[length];
+            for (int i=0;i<=current;i++){
+            check[a[i]] = 1;
+            }
+
+            for (int i=0;i<length;i++)
+                if (check[i]==0){
+                    a[current+1]=i;
+                    dfs(current+1,a);
+                }
+    
+
+        
+            return;    
+        }
+    }
+    public List<List<Integer>> permuteUnique(int[] nums) {
+        length = nums.length;
+        _nums = nums;
+        int[] a = new int[length];
+
+        dfs(-1,a);
+        List<List<Integer>> answer = new ArrayList<List<Integer>>();
+        for (List<Integer> i:set){
+            answer.add(i);
+        }
+        return answer;
+    }
+}
+~~~
+
+
 
 # 48
 
@@ -3433,6 +3535,40 @@ class Solution {
     }
 }
 ```
+
+# 349
+
+~~~
+class Solution {
+    Set<Integer> set1 = new HashSet<Integer>();
+    Set<Integer> set2 = new HashSet<Integer>();
+
+    public int[] intersection(int[] nums1, int[] nums2) {
+        List<Integer> list = new ArrayList<Integer>();
+        for (int i:nums1){
+            set1.add(i);
+        }
+        for (int i:nums2){
+            set2.add(i);
+        }
+        for (int i:set1){
+            if (set2.contains(i)){
+                list.add(i);
+            }
+        }
+
+        int[] ans = new int[list.size()];
+        for (int i=0;i<list.size();i++){
+            ans[i]=list.get(i);
+        }
+        return  ans;
+    }
+}
+~~~
+
+
+
+
 
 # 394 递归 括号处理
 
