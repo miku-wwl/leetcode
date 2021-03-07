@@ -186,7 +186,7 @@ class Solution {
 
 
 
-# 7 字符串各种操作
+# 7 字符串各种操作 数字字符串互转
 
 ~~~
 class Solution {
@@ -208,6 +208,59 @@ class Solution {
         return mark*Integer.parseInt(str);
     }
 }
+~~~
+
+
+
+# 8 有限状态自动机 DFA
+
+~~~
+class Solution {
+    public int myAtoi(String str) {
+        Automaton automaton = new Automaton();
+        int length = str.length();
+        for (int i = 0; i < length; ++i) {
+            automaton.get(str.charAt(i));
+        }
+        return (int) (automaton.sign * automaton.ans);
+    }
+}
+
+class Automaton {
+    public int sign = 1;
+    public long ans = 0;
+    private String state = "start";
+    private Map<String, String[]> table = new HashMap<String, String[]>() {{
+        put("start", new String[]{"start", "signed", "in_number", "end"});
+        put("signed", new String[]{"end", "end", "in_number", "end"});
+        put("in_number", new String[]{"end", "end", "in_number", "end"});
+        put("end", new String[]{"end", "end", "end", "end"});
+    }};
+
+    public void get(char c) {
+        state = table.get(state)[get_col(c)];
+        if ("in_number".equals(state)) {
+            ans = ans * 10 + c - '0';
+            ans = sign == 1 ? Math.min(ans, (long) Integer.MAX_VALUE) : Math.min(ans, -(long) Integer.MIN_VALUE);
+        } else if ("signed".equals(state)) {
+            sign = c == '+' ? 1 : -1;
+        }
+    }
+
+    private int get_col(char c) {
+        if (c == ' ') {
+            return 0;
+        }
+        if (c == '+' || c == '-') {
+            return 1;
+        }
+        if (Character.isDigit(c)) {
+            return 2;
+        }
+        return 3;
+    }
+}
+
 ~~~
 
 
@@ -390,6 +443,41 @@ class Solution {
 
 ~~~
 
+# 18  List排序  Collections.sort(list);
+
+~~~
+class Solution {
+
+    Set<List<Integer>> set = new HashSet<List<Integer>>();
+    List<List<Integer>> answer = new ArrayList<List<Integer>>();
+
+    public List<List<Integer>> fourSum(int[] nums, int target) {
+        
+        for (int i=0;i<nums.length;i++)
+            for (int j=i+1;j<nums.length;j++)
+                for (int k=j+1;k<nums.length;k++)
+                    for (int l=k+1;l<nums.length;l++){
+                        if (nums[i]+nums[j]+nums[k]+nums[l] == target){
+                            List<Integer> list = new ArrayList<Integer>();
+                            list.add(nums[i]);
+                            list.add(nums[j]);
+                            list.add(nums[k]);
+                            list.add(nums[l]);
+                            Collections.sort(list);
+                            
+                            set.add(list);
+                        }
+                    }
+        for (List<Integer> i: set){
+            answer.add(i);
+        }
+        return answer;
+    }
+}
+~~~
+
+
+
 # 19
 
 ~~~
@@ -558,6 +646,51 @@ class Solution {
     }
 }
 ```
+
+# 24 链表转线性表
+
+~~~
+/**
+ * Definition for singly-linked list.
+ * public class ListNode {
+ *     int val;
+ *     ListNode next;
+ *     ListNode() {}
+ *     ListNode(int val) { this.val = val; }
+ *     ListNode(int val, ListNode next) { this.val = val; this.next = next; }
+ * }
+ */
+class Solution {
+    public ListNode swapPairs(ListNode head) {
+        if (head==null || head.next == null) return head;
+        
+        List<ListNode> list = new ArrayList<ListNode>();
+        ListNode realHead = new ListNode(-1,head);
+
+        ListNode position = realHead;
+        while (position!=null){
+            list.add(position);
+            position= position.next;
+        }
+
+        for (int i=1;i<=(list.size()-1)/2;i++){
+            list.get(2*i-2).next = list.get(2*i);
+            list.get(2*i-1).next = list.get(2*i).next;
+            list.get(2*i).next = list.get(2*i-1);
+
+            list.clear();
+            position = realHead;
+            while (position!=null){
+                list.add(position);
+                position=position.next;
+            }           
+        }
+        return realHead.next;
+    }
+}
+~~~
+
+
 
 # 25 链表转线性表
 
@@ -1257,6 +1390,50 @@ class Solution {
 }
 ```
 
+# 77
+
+~~~
+class Solution {
+    List<List<Integer>> answer = new ArrayList<List<Integer>>();
+    int _n;
+    int _k;
+
+    private void find(int carry, int[] a){
+        if (carry==_k-1){
+            List<Integer> list = new ArrayList<Integer>();
+            for (int i: a){
+                list.add(i);
+            }
+            answer.add(list);
+            return;
+        }else{
+            if (carry==-1){
+                for (int i=1;i<=_n;i++){
+                    a[carry+1]=i;
+                    find(carry+1,a);
+                }
+            }else{
+                for (int i=a[carry]+1;i<=_n;i++){
+                    a[carry+1]=i;
+                    find(carry+1,a);
+
+                }
+            }
+        }
+    }
+    public List<List<Integer>> combine(int n, int k) {
+        int[] a = new int[k];
+        _n = n;
+        _k = k;
+
+        find(-1,a);
+        return answer;
+    }
+}
+~~~
+
+
+
 # 78
 
 ~~~
@@ -1625,6 +1802,48 @@ class Solution {
 
 ~~~
 
+# 103 广度优先搜索 二维List
+
+~~~
+class Solution {
+    public List<List<Integer>> zigzagLevelOrder(TreeNode root) {
+        List<List<Integer>> ans = new LinkedList<List<Integer>>();
+        if (root == null) {
+            return ans;
+        }
+
+        Queue<TreeNode> nodeQueue = new LinkedList<TreeNode>();
+        nodeQueue.offer(root);
+        boolean isOrderLeft = true;
+
+        while (!nodeQueue.isEmpty()) {
+            Deque<Integer> levelList = new LinkedList<Integer>();
+            int size = nodeQueue.size();
+            for (int i = 0; i < size; ++i) {
+                TreeNode curNode = nodeQueue.poll();
+                if (isOrderLeft) {
+                    levelList.offerLast(curNode.val);
+                } else {
+                    levelList.offerFirst(curNode.val);
+                }
+                if (curNode.left != null) {
+                    nodeQueue.offer(curNode.left);
+                }
+                if (curNode.right != null) {
+                    nodeQueue.offer(curNode.right);
+                }
+            }
+            ans.add(new LinkedList<Integer>(levelList));
+            isOrderLeft = !isOrderLeft;
+        }
+
+        return ans;
+    }
+}
+~~~
+
+
+
 # 104
 
 ~~~
@@ -1698,6 +1917,49 @@ class Solution {
     }
 }
 ```
+
+# 118
+
+~~~
+class Solution {
+    List<List<Integer>> answer = new ArrayList<List<Integer>>();
+    List<Integer> list;
+    public List<List<Integer>> generate(int numRows) {
+        int[][] f = new int[numRows+1][numRows+1];
+        
+        f[1][1] = 1;
+        list = new ArrayList<Integer>();
+        list.add(1);
+        answer.add(list);
+        if (numRows==1) return answer;
+
+        f[2][1] = 1;
+        f[2][2] = 1;
+        list = new ArrayList<Integer>();
+        list.add(1);
+        list.add(1);
+        answer.add(list);
+        if (numRows==2) return answer;
+
+        for (int i=3;i<=numRows;i++){
+            f[i][1] = 1;
+            f[i][i] = 1;
+            for (int j=2;j<=i-1;j++){
+                f[i][j] = f[i-1][j-1]+f[i-1][j];
+            }
+            list = new ArrayList<Integer>();
+            for (int j=1;j<=i;j++){
+                list.add(f[i][j]);
+            }
+            answer.add(list);
+        }
+
+        return answer;
+    }
+}
+~~~
+
+
 
 # 121
 
@@ -1809,6 +2071,38 @@ class Solution {
 }
 ```
 
+# 135
+
+~~~
+class Solution {
+    public int candy(int[] ratings) {
+        int n = ratings.length;
+        int ret = 1;
+        int inc = 1, dec = 0, pre = 1;
+        for (int i = 1; i < n; i++) {
+            if (ratings[i] >= ratings[i - 1]) {
+                dec = 0;
+                pre = ratings[i] == ratings[i - 1] ? 1 : pre + 1;
+                ret += pre;
+                inc = pre;
+            } else {
+                dec++;
+                if (dec == inc) {
+                    dec++;
+                }
+                ret += dec;
+                pre = 1;
+            }
+        }
+        return ret;
+    }
+}
+~~~
+
+
+
+
+
 
 
 # 136
@@ -1884,6 +2178,42 @@ class Solution {
 ~~~
 
 
+
+
+
+# 144
+
+~~~
+/**
+ * Definition for a binary tree node.
+ * public class TreeNode {
+ *     int val;
+ *     TreeNode left;
+ *     TreeNode right;
+ *     TreeNode() {}
+ *     TreeNode(int val) { this.val = val; }
+ *     TreeNode(int val, TreeNode left, TreeNode right) {
+ *         this.val = val;
+ *         this.left = left;
+ *         this.right = right;
+ *     }
+ * }
+ */
+class Solution {
+    List<Integer> list = new ArrayList<Integer>();
+    private void treeSearch(TreeNode tree){
+        if (tree!=null){
+            list.add(tree.val);
+            treeSearch(tree.left);
+            treeSearch(tree.right);
+        }
+    }
+    public List<Integer> preorderTraversal(TreeNode root) {
+        treeSearch(root);
+        return list;
+    }
+}
+~~~
 
 
 
@@ -3401,6 +3731,22 @@ class Solution {
 }
 ~~~
 
+# 509
+
+~~~
+class Solution {
+    public int fib(int n) {
+        int[] f = new int [31];
+        f[0]=0;
+        f[1]=1;
+        for (int i=2;i<=n;i++){
+            f[i]=f[i-1]+f[i-2];
+        }
+        return f[n];
+    }
+}
+~~~
+
 
 
 
@@ -3744,6 +4090,54 @@ class Solution {
 }
 ~~~
 
+# Sword38 全排列
+
+~~~
+class Solution {
+    String str;
+    Set<String> set = new HashSet<String>();
+
+    private void arrangement(int carry, int[] a){
+        if (carry == str.length()-1){
+            String tempString = "";
+            for (int i=0;i<str.length();i++){
+                tempString += str.charAt(a[i]);
+            }
+            set.add(tempString);
+            return;
+        }
+
+        int[] check = new int[str.length()];
+        for (int i=0;i<=carry;i++){
+            check[a[i]] = 1;
+        }
+
+        for (int i=0;i<str.length();i++)
+            if (check[i] == 0){
+                a[carry+1]=i;
+                arrangement(carry+1,a);
+            }
+        return;    
+    }
+    public String[] permutation(String s) {
+        str = s;
+        int[] a = new int[s.length()];
+        arrangement(-1,a);
+
+        String[] strs = new String[set.size()];
+        int index = -1;
+        for (String strinSet: set){
+            index++;
+            strs[index] = strinSet;
+        }
+        
+        return strs;
+    }
+}
+~~~
+
+
+
 # Sword42 简单动态规划
 
 ~~~
@@ -3849,3 +4243,8 @@ public class LRUCache {
 }
 ~~~
 
+
+
+
+
+8 40 103 135
