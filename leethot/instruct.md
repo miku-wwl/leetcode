@@ -1364,6 +1364,27 @@ class Solution {
 }
 ```
 
+# 49 复杂 HashMap 和String 操作
+
+~~~
+class Solution {
+    public List<List<String>> groupAnagrams(String[] strs) {
+        Map<String, List<String>> map = new HashMap<String, List<String>>();
+        for (String str : strs) {
+            char[] array = str.toCharArray();
+            Arrays.sort(array);
+            String key = new String(array);
+            List<String> list = map.getOrDefault(key, new ArrayList<String>());
+            list.add(str);
+            map.put(key, list);
+        }
+        return new ArrayList<List<String>>(map.values());
+    }
+}
+~~~
+
+
+
 # 53
 
 ```
@@ -1526,6 +1547,27 @@ class Solution {
     }
 }
 ```
+
+# 69 袖珍计算器 计算Sqort
+
+
+
+
+
+~~~
+class Solution {
+    public int mySqrt(int x) {
+        if (x == 0) {
+            return 0;
+        }
+        int ans = (int) Math.exp(0.5 * Math.log(x));
+        return (long) (ans + 1) * (ans + 1) <= x ? ans + 1 : ans;
+    }
+}
+
+~~~
+
+
 
 # 70
 
@@ -4355,6 +4397,52 @@ class Foo {
         printThird.run();
     }
 }
+~~~
+
+
+
+# 1143
+
+~~~
+class Solution {
+    public int longestCommonSubsequence(String text1, String text2) {
+        int[][] f = new int[text1.length()+1][text2.length()+1];
+        for (int i = 1;i<=text1.length();i++)
+            for (int j = 1;j<=text2.length();j++){
+                int equal=0;
+                if (text1.charAt(i-1)==text2.charAt(j-1)){
+                    equal=1;
+                }
+                f[i][j] = Math.max(f[i-1][j-1]+equal,f[i][j]);
+                f[i][j] = Math.max(f[i-1][j],f[i][j]);
+                f[i][j] = Math.max(f[i][j-1],f[i][j]);
+            }
+        return f[text1.length()][text2.length()];
+    }
+}
+~~~
+
+
+
+# 1411 组合数学
+
+~~~
+
+class Solution {
+    static final int MOD = 1000000007;
+
+    public int numOfWays(int n) {
+        long fi0 = 6, fi1 = 6;
+        for (int i = 2; i <= n; ++i) {
+            long newFi0 = (2 * fi0 + 2 * fi1) % MOD;
+            long newFi1 = (2 * fi0 + 3 * fi1) % MOD;
+            fi0 = newFi0;
+            fi1 = newFi1;
+        }
+        return (int) ((fi0 + fi1) % MOD);
+    }
+}
+
 ~~~
 
 

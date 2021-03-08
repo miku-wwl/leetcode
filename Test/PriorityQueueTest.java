@@ -28,7 +28,7 @@ public class PriorityQueueTest {
 
 
     public static void main(String[] args) {
-        Queue<Integer> queue1 = new PriorityQueue<Integer>((a,b)->b-a);
+        Queue<Integer> queue1 = new PriorityQueue<Integer>((a,b)->b-a); 
         queue1.add(2);
         queue1.add(1);
         queue1.add(3);

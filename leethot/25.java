@@ -22,19 +22,20 @@ class Solution {
         }
         int sum = 0;
         while (sum+k<=list.size()-1){
-            list.get(sum).next = list.get(sum+k);
-            list.get(sum+1).next = list.get(sum+k).next;
-            for (int i=sum+k;i>sum+1;i--){
-                list.get(i).next = list.get(i-1);
+            if (sum==0){
+                list.get(sum).next = list.get(sum+k);
+                list.get(sum+1).next = list.get(sum+k).next;
+                for (int i=sum+k;i>sum+1;i--){
+                    list.get(i).next = list.get(i-1);
+                }
+            }else{
+                list.get(sum-k).next = list.get(sum+k);
+                list.get(sum+1).next = list.get(sum+k).next;
+                for (int i=sum+k;i>sum+1;i--){
+                    list.get(i).next = list.get(i-1);
             }
 
-            list.clear();
-            node = realHead;
-            while (node!=null){
-                list.add(node);
-                node=node.next;
-            }
-            
+           
             sum+=k;
         }
 
