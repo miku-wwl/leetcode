@@ -925,6 +925,45 @@ class Solution {
 }
 ~~~
 
+# 26
+
+~~~
+class Solution {
+    public int removeDuplicates(int[] nums) {
+    if (nums.length == 0) return 0;
+    int i = 0;
+    for (int j = 1; j < nums.length; j++) {
+        if (nums[j] != nums[i]) {
+            i++;
+            nums[i] = nums[j];
+        }
+    }
+    return i + 1;
+}
+}
+
+~~~
+
+
+
+# 28
+
+~~~
+class Solution {
+    public int strStr(String haystack, String needle) {
+        if (needle.equals("")) return 0;
+        int answer = -1;
+        for (int i=0;i<=haystack.length()-needle.length();i++){
+            if (needle.equals(haystack.substring(i,i+needle.length()))){
+                answer = i;
+                break;
+            }
+        }
+        return answer;
+    }
+}
+~~~
+
 
 
 
@@ -2286,6 +2325,51 @@ class Solution {
     }
 }
 ```
+
+# 132 回文 难
+
+~~~
+class Solution {
+    public int minCut(String s) {
+        int n = s.length();
+        boolean[][] g = new boolean[n][n];
+        for (int i = 0; i < n; ++i) {
+            Arrays.fill(g[i], true);
+        }
+
+        for (int i = n - 1; i >= 0; --i) {
+            for (int j = i + 1; j < n; ++j) {
+                g[i][j] = s.charAt(i) == s.charAt(j) && g[i + 1][j - 1];
+            }
+        }
+
+        int[] f = new int[n];
+        Arrays.fill(f, Integer.MAX_VALUE);
+        for (int i = 0; i < n; ++i) {
+            if (g[0][i]) {
+                f[i] = 0;
+            } else {
+                for (int j = 0; j < i; ++j) {
+                    if (g[j + 1][i]) {
+                        f[i] = Math.min(f[i], f[j] + 1);
+                    }
+                }
+            }
+        }
+
+        return f[n - 1];
+    }
+}
+
+作者：LeetCode-Solution
+链接：https://leetcode-cn.com/problems/palindrome-partitioning-ii/solution/fen-ge-hui-wen-chuan-ii-by-leetcode-solu-norx/
+来源：力扣（LeetCode）
+著作权归作者所有。商业转载请联系作者获得授权，非商业转载请注明出处。
+~~~
+
+
+
+
 
 # 135
 
@@ -3779,6 +3863,50 @@ class Solution {
 }
 ~~~
 
+# 424 双指针 滑动窗口
+
+~~~
+public class Solution {
+
+    public int characterReplacement(String s, int k) {
+        int len = s.length();
+        if (len < 2) {
+            return len;
+        }
+
+        char[] charArray = s.toCharArray();
+        int left = 0;
+        int right = 0;
+
+        int res = 0;
+        int maxCount = 0;
+        int[] freq = new int[26];
+        // [left, right) 内最多替换 k 个字符可以得到只有一种字符的子串
+        while (right < len){
+            freq[charArray[right] - 'A']++;
+            // 在这里维护 maxCount，因为每一次右边界读入一个字符，字符频数增加，才会使得 maxCount 增加
+            maxCount = Math.max(maxCount, freq[charArray[right] - 'A']);
+            right++;
+
+            if (right - left > maxCount + k){
+              	// 说明此时 k 不够用
+                // 把其它不是最多出现的字符替换以后，都不能填满这个滑动的窗口，这个时候须要考虑左边界向右移动
+                // 移出滑动窗口的时候，频数数组须要相应地做减法
+                freq[charArray[left] - 'A']--;
+                left++;
+            }
+            res = Math.max(res, right - left);
+        }
+        return res;
+    }
+}
+
+~~~
+
+
+
+
+
 # 437 前缀和 hashmap
 
 ~~~
@@ -4273,6 +4401,64 @@ class Solution {
 
 
 
+# Sword07 先序中序 构建树
+
+~~~
+/**
+ * Definition for a binary tree node.
+ * public class TreeNode {
+ *     int val;
+ *     TreeNode left;
+ *     TreeNode right;
+ *     TreeNode(int x) { val = x; }
+ * }
+ */
+class Solution {
+    private TreeNode Create(int[] preorder,int[] inorder){
+        if (preorder.length>0){
+            TreeNode node = new TreeNode(preorder[0]);
+            int index=0;
+            
+            for (int i=0;i<inorder.length;i++){
+                if (inorder[i]==preorder[0]){
+                    index = i;
+                }
+            }
+
+            if (index>0){
+                int[] p = new int[index];
+                int[] q = new int[index];
+                for (int i=0;i<index;i++){
+                    p[i]=preorder[i+1];
+                    q[i]=inorder[i];
+                    
+                }
+                node.left = Create(p,q);
+            }
+            if (preorder.length-1-index>0){
+                int[] p = new int[preorder.length-1-index];
+                int[] q = new int[preorder.length-1-index];
+                for (int i=0;i<preorder.length-1-index;i++){
+                    p[i]= preorder[i+index+1];
+                    q[i]= inorder[i+index+1]; 
+                }
+                node.right = Create(p,q);
+            }
+
+
+            return node;
+        }
+        return null;
+    }
+    public TreeNode buildTree(int[] preorder, int[] inorder) {
+        TreeNode tree = Create(preorder,inorder);
+        return tree;
+    }
+}
+~~~
+
+
+
 # Sword09 双栈模拟队列
 
 ~~~
@@ -4305,6 +4491,122 @@ class CQueue {
  * obj.appendTail(value);
  * int param_2 = obj.deleteHead();
  */
+~~~
+
+
+
+# Sword20 有限状态自动机
+
+~~~
+class Solution {
+    public boolean isNumber(String s) {
+        Map<State, Map<CharType, State>> transfer = new HashMap<State, Map<CharType, State>>();
+        Map<CharType, State> initialMap = new HashMap<CharType, State>() {{
+            put(CharType.CHAR_SPACE, State.STATE_INITIAL);
+            put(CharType.CHAR_NUMBER, State.STATE_INTEGER);
+            put(CharType.CHAR_POINT, State.STATE_POINT_WITHOUT_INT);
+            put(CharType.CHAR_SIGN, State.STATE_INT_SIGN);
+        }};
+        transfer.put(State.STATE_INITIAL, initialMap);
+        Map<CharType, State> intSignMap = new HashMap<CharType, State>() {{
+            put(CharType.CHAR_NUMBER, State.STATE_INTEGER);
+            put(CharType.CHAR_POINT, State.STATE_POINT_WITHOUT_INT);
+        }};
+        transfer.put(State.STATE_INT_SIGN, intSignMap);
+        Map<CharType, State> integerMap = new HashMap<CharType, State>() {{
+            put(CharType.CHAR_NUMBER, State.STATE_INTEGER);
+            put(CharType.CHAR_EXP, State.STATE_EXP);
+            put(CharType.CHAR_POINT, State.STATE_POINT);
+            put(CharType.CHAR_SPACE, State.STATE_END);
+        }};
+        transfer.put(State.STATE_INTEGER, integerMap);
+        Map<CharType, State> pointMap = new HashMap<CharType, State>() {{
+            put(CharType.CHAR_NUMBER, State.STATE_FRACTION);
+            put(CharType.CHAR_EXP, State.STATE_EXP);
+            put(CharType.CHAR_SPACE, State.STATE_END);
+        }};
+        transfer.put(State.STATE_POINT, pointMap);
+        Map<CharType, State> pointWithoutIntMap = new HashMap<CharType, State>() {{
+            put(CharType.CHAR_NUMBER, State.STATE_FRACTION);
+        }};
+        transfer.put(State.STATE_POINT_WITHOUT_INT, pointWithoutIntMap);
+        Map<CharType, State> fractionMap = new HashMap<CharType, State>() {{
+            put(CharType.CHAR_NUMBER, State.STATE_FRACTION);
+            put(CharType.CHAR_EXP, State.STATE_EXP);
+            put(CharType.CHAR_SPACE, State.STATE_END);
+        }};
+        transfer.put(State.STATE_FRACTION, fractionMap);
+        Map<CharType, State> expMap = new HashMap<CharType, State>() {{
+            put(CharType.CHAR_NUMBER, State.STATE_EXP_NUMBER);
+            put(CharType.CHAR_SIGN, State.STATE_EXP_SIGN);
+        }};
+        transfer.put(State.STATE_EXP, expMap);
+        Map<CharType, State> expSignMap = new HashMap<CharType, State>() {{
+            put(CharType.CHAR_NUMBER, State.STATE_EXP_NUMBER);
+        }};
+        transfer.put(State.STATE_EXP_SIGN, expSignMap);
+        Map<CharType, State> expNumberMap = new HashMap<CharType, State>() {{
+            put(CharType.CHAR_NUMBER, State.STATE_EXP_NUMBER);
+            put(CharType.CHAR_SPACE, State.STATE_END);
+        }};
+        transfer.put(State.STATE_EXP_NUMBER, expNumberMap);
+        Map<CharType, State> endMap = new HashMap<CharType, State>() {{
+            put(CharType.CHAR_SPACE, State.STATE_END);
+        }};
+        transfer.put(State.STATE_END, endMap);
+
+        int length = s.length();
+        State state = State.STATE_INITIAL;
+
+        for (int i = 0; i < length; i++) {
+            CharType type = toCharType(s.charAt(i));
+            if (!transfer.get(state).containsKey(type)) {
+                return false;
+            } else {
+                state = transfer.get(state).get(type);
+            }
+        }
+        return state == State.STATE_INTEGER || state == State.STATE_POINT || state == State.STATE_FRACTION || state == State.STATE_EXP_NUMBER || state == State.STATE_END;
+    }
+
+    public CharType toCharType(char ch) {
+        if (ch >= '0' && ch <= '9') {
+            return CharType.CHAR_NUMBER;
+        } else if (ch == 'e' || ch == 'E') {
+            return CharType.CHAR_EXP;
+        } else if (ch == '.') {
+            return CharType.CHAR_POINT;
+        } else if (ch == '+' || ch == '-') {
+            return CharType.CHAR_SIGN;
+        } else if (ch == ' ') {
+            return CharType.CHAR_SPACE;
+        } else {
+            return CharType.CHAR_ILLEGAL;
+        }
+    }
+
+    enum State {
+        STATE_INITIAL,
+        STATE_INT_SIGN,
+        STATE_INTEGER,
+        STATE_POINT,
+        STATE_POINT_WITHOUT_INT,
+        STATE_FRACTION,
+        STATE_EXP,
+        STATE_EXP_SIGN,
+        STATE_EXP_NUMBER,
+        STATE_END,
+    }
+
+    enum CharType {
+        CHAR_NUMBER,
+        CHAR_EXP,
+        CHAR_POINT,
+        CHAR_SIGN,
+        CHAR_SPACE,
+        CHAR_ILLEGAL,
+    }
+}
 ~~~
 
 
@@ -4365,6 +4667,103 @@ class Solution {
     }
 }
 ~~~
+
+# Sword25
+
+~~~
+/**
+ * Definition for singly-linked list.
+ * public class ListNode {
+ *     int val;
+ *     ListNode next;
+ *     ListNode(int x) { val = x; }
+ * }
+ */
+class Solution {
+    public ListNode mergeTwoLists(ListNode l1, ListNode l2) {
+        List<ListNode> list = new ArrayList<ListNode>();
+        while (l1!=null || l2!=null){
+            if (l2==null){
+                list.add(l1);
+                l1=l1.next;
+                continue;
+            }
+            if (l1==null){
+                list.add(l2);
+                l2=l2.next;
+                continue;
+            }
+            if (l1.val<=l2.val){
+                list.add(l1);
+                l1=l1.next;
+                continue;
+            }
+            if (l1.val>l2.val){
+                list.add(l2);
+                l2=l2.next;
+                continue;
+            }
+
+        }
+        if (list.size()==0) return null;
+        
+        for (int i=0;i<list.size()-1;i++){
+            list.get(i).next = list.get(i+1);
+        }
+        list.get(list.size()-1).next = null;
+        return list.get(0);
+    }
+}
+~~~
+
+
+
+# Sword29
+
+~~~
+class Solution {
+    int[][] map;
+    int[][] _matrix;
+    
+    int[] directX={0,1,0,-1};
+    int[] directY={1,0,-1,0};
+    
+    int m,n;
+    List<Integer> list =new ArrayList<Integer>();
+    
+    private void find(int x, int y,int direct){
+        map[x][y] = 1;
+        list.add(_matrix[x][y]);
+        if (x+directX[direct]>=m || x+directX[direct]<0 || y+directY[direct]>=n || y+directY[direct]<0){
+            direct = (direct+1)%4;
+        }else if(map[x+directX[direct]][y+directY[direct]] == 1){
+            direct = (direct+1)%4;
+        }
+        if (x+directX[direct]<m && x+directX[direct]>=0 && y+directY[direct]<n && y+directY[direct]>=0 && map[x+directX[direct]][y+directY[direct]] == 0){
+            find(x+directX[direct],y+directY[direct],direct);
+        }
+        
+    } 
+    public int[] spiralOrder(int[][] matrix) {
+        _matrix = matrix;
+
+        if (matrix.length==0) return new int[0];
+        m=matrix.length;
+        n=matrix[0].length;
+        map = new int[m][n];
+        find(0,0,0);
+
+        int[]  answer = new int[list.size()];
+        for (int i=0;i<list.size();i++){
+            answer[i] = list.get(i);
+        }
+        return answer;
+
+    }
+}
+~~~
+
+
 
 # Sword38 全排列
 
@@ -4431,7 +4830,7 @@ class Solution {
 }
 ~~~
 
-# Inteview_1625
+# Interview_1625
 
 ~~~
 public class LRUCache {
@@ -4519,8 +4918,64 @@ public class LRUCache {
 }
 ~~~
 
+# Interview_0205
+
+~~~
+/**
+ * Definition for singly-linked list.
+ * public class ListNode {
+ *     int val;
+ *     ListNode next;
+ *     ListNode(int x) { val = x; }
+ * }
+ */
+class Solution {
+    public ListNode addTwoNumbers(ListNode l1, ListNode l2) {
+        List<ListNode> list1 = new ArrayList<ListNode>();
+        List<ListNode> list2 = new ArrayList<ListNode>();
+        List<ListNode> temp = new ArrayList<ListNode>();
+        while (l1!=null){
+            list1.add(l1);
+            l1=l1.next;
+        }
+        while(l2!=null){
+            list2.add(l2);
+            l2=l2.next;
+        }
+        if (list1.size()<list2.size()){
+            temp = list1;
+            list1 = list2;
+            list2 = temp;
+        }
+
+        list1.add(new ListNode(0));
+        for (int i=0;i<list2.size();i++){
+            list1.get(i).val += list2.get(i).val;
+            if (list1.get(i).val>=10){
+                list1.get(i).val-=10;
+                list1.get(i+1).val+=1;
+            } 
+        }
+        for (int i=0;i<list1.size()-1;i++){
+            if (list1.get(i).val>=10){
+                list1.get(i).val-=10;
+                list1.get(i+1).val+=1;
+            }
+        }
+        
+        if (list1.get(list1.size()-1).val !=0){
+            list1.get(list1.size()-2).next = list1.get(list1.size()-1);
+        }
+
+        return list1.get(0);    
+
+
+    }
+}
+~~~
 
 
 
 
-8 40 103 135
+
+8 40 103 135 132 sword20
