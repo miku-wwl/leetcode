@@ -3235,6 +3235,39 @@ public class Solution {
 }
 ~~~
 
+# 168
+
+~~~
+class Solution {
+    public String convertToTitle(int columnNumber) {
+      String str = "";
+      if (columnNumber<=26) return new Character((char)('A'+columnNumber-1)).toString();
+        while (columnNumber>26){
+            int mod;
+            mod = columnNumber % 26;
+            if (mod == 0) {
+                mod = 26;
+                columnNumber = columnNumber / 26 -1;
+            }else{
+                columnNumber = columnNumber / 26;
+            }
+            str += (char) (mod + 'A' -1);
+            
+        }
+        str += (char) (columnNumber + 'A' -1);
+
+        str = new StringBuilder(str).reverse().toString();
+
+        return str;
+    }
+}
+
+
+
+~~~
+
+
+
 # 169
 
 ~~~
@@ -3283,6 +3316,26 @@ public:
     }
 };
 ~~~
+
+# 172
+
+~~~‘
+class Solution {
+    public int trailingZeroes(int n) {
+        int ans = 0;
+        for (int i=5;i<=n;i++){
+            int temp = i;
+            while (temp%5==0){
+                ans++;
+                temp/=5;              
+            }
+        }
+        return ans;
+    }
+}
+~~~
+
+
 
 # 189
 
@@ -3408,6 +3461,40 @@ class Solution {
 }
 ```
 
+# 205
+
+~~~
+class Solution {
+    public boolean isIsomorphic(String s, String t) {
+        Map<Character,Character> map1 =new HashMap<Character,Character>();
+        Map<Character,Character> map2 =new HashMap<Character,Character>();
+
+        if (s.length()!=t.length()) return false;
+        for (int i=0;i<s.length();i++){
+            char x,y;
+            x=s.charAt(i);
+            y=t.charAt(i);
+            if (!map1.containsKey(x)){
+                map1.put(x,y);
+            }else{
+                if (y!=map1.get(x)){
+                    return false;
+                }
+            }
+
+            if (!map2.containsKey(y)){
+                map2.put(y,x);
+            }else{
+                if (x!=map2.get(y)){
+                    return false;
+                }
+            }
+        }
+        return true;
+    }
+}
+~~~
+
 # 206
 
 ```
@@ -3515,6 +3602,74 @@ public:
     }
 };
 ```
+
+# 210
+
+~~~
+class Solution {
+    // 存储有向图
+    List<List<Integer>> edges;
+    // 标记每个节点的状态：0=未搜索，1=搜索中，2=已完成
+    int[] visited;
+    // 用数组来模拟栈，下标 n-1 为栈底，0 为栈顶
+    int[] result;
+    // 判断有向图中是否有环
+    boolean valid = true;
+    // 栈下标
+    int index;
+
+    public int[] findOrder(int numCourses, int[][] prerequisites) {
+        edges = new ArrayList<List<Integer>>();
+        for (int i = 0; i < numCourses; ++i) {
+            edges.add(new ArrayList<Integer>());
+        }
+        visited = new int[numCourses];
+        result = new int[numCourses];
+        index = numCourses - 1;
+        for (int[] info : prerequisites) {
+            edges.get(info[1]).add(info[0]);
+        }
+        // 每次挑选一个「未搜索」的节点，开始进行深度优先搜索
+        for (int i = 0; i < numCourses && valid; ++i) {
+            if (visited[i] == 0) {
+                dfs(i);
+            }
+        }
+        if (!valid) {
+            return new int[0];
+        }
+        // 如果没有环，那么就有拓扑排序
+        return result;
+    }
+
+    public void dfs(int u) {
+        // 将节点标记为「搜索中」
+        visited[u] = 1;
+        // 搜索其相邻节点
+        // 只要发现有环，立刻停止搜索
+        for (int v: edges.get(u)) {
+            // 如果「未搜索」那么搜索相邻节点
+            if (visited[v] == 0) {
+                dfs(v);
+                if (!valid) {
+                    return;
+                }
+            }
+            // 如果「搜索中」说明找到了环
+            else if (visited[v] == 1) {
+                valid = false;
+                return;
+            }
+        }
+        // 将节点标记为「已完成」
+        visited[u] = 2;
+        // 将节点入栈
+        result[index--] = u;
+    }
+}
+~~~
+
+
 
 # 215
 
@@ -5839,4 +5994,4 @@ class Solution {
 
 
 
-8 40 103 135 132 sword20 sword51 402 117
+8 40 103 135 132 sword20 sword51 402 117  145
