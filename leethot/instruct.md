@@ -1573,6 +1573,40 @@ class Solution {
 }
 ```
 
+# 63
+
+~~~
+class Solution {
+    public int uniquePathsWithObstacles(int[][] obstacleGrid) {
+        int m = obstacleGrid.length;
+        int n = obstacleGrid[0].length;
+        int[][] f = new int[m][n];
+        f[0][0] = 1;
+        for (int i=0;i<m;i++)
+            for (int j=0;j<n;j++){
+                if (obstacleGrid[i][j]==1){
+                    f[i][j]=0;
+                  //  System.out.print(f[i][j]);
+                    continue;
+                }      
+                if (!(i==0&&j==0)){
+                    int x=0;
+                    int y=0;
+                    x = i-1>=0?f[i-1][j]:0;
+                    y = j-1>=0?f[i][j-1]:0;
+                    f[i][j]=x+y;
+
+                //    System.out.print(f[i][j]);
+                }
+                
+            }
+        return f[m-1][n-1];
+    }
+}
+~~~
+
+
+
 # 64
 
 ```
@@ -1638,6 +1672,44 @@ class Solution {
     }
 }
 ```
+
+# 71
+
+~~~
+class Solution {
+    public String simplifyPath(String path) {
+        Stack<String> stack =new Stack<String>();
+
+        
+        for (String i: path.split("\\/+")){
+            if (i.equals("")) continue;
+            if (i.equals(".")) continue;
+            if (i.equals("..")){
+                if (stack.size()==0) continue;
+                stack.pop();
+                continue;
+            }    
+            stack.push(i);
+        }
+        
+        if (stack.size()==0) return"/";
+        
+        List<String> list = new ArrayList<String>();
+        while (!stack.isEmpty()){
+            list.add(stack.pop());
+        }
+        Collections.reverse(list);
+        
+        String str="";
+        for (String s: list){
+            str=str+"/"+s;
+        }
+        return str;
+    }
+}
+~~~
+
+
 
 # 72
 
@@ -2057,6 +2129,68 @@ class Solution {
 
 
 
+# 93
+
+~~~
+class Solution {
+    public List<String> restoreIpAddresses(String s) {
+        int length = s.length();
+        List<String> list = new ArrayList<String>();
+
+        if (length>12) return list;
+        
+        for (int i=0;i<length;i++){
+            if (s.charAt(i)>'9' || s.charAt(i)<'0' )
+            return list;
+        }
+
+        for (int i=0;i<length-1;i++)
+            for (int j=i+1;j<length-1;j++)
+                for (int k=j+1;k<length-1;k++){
+
+                    //增加"."
+                    String str = "";
+                    for (int index = 0;index<length;index++){                
+                        if (index == i) {
+                            str = str+s.charAt(index)+".";
+                            continue;
+                        }
+                        if (index == j) {
+                            str = str+s.charAt(index)+".";
+                            continue;
+                        }
+                        if (index == k){
+                            str = str+s.charAt(index)+".";
+                            continue;
+                        } 
+                        str = str+s.charAt(index);
+                    }
+                    //分离"."
+                    String[] splits = str.split("\\.");
+                    boolean check = true;
+                    for (String splitstring: splits){
+
+                        if (splitstring.length() > new Long(Long.parseLong(splitstring)).toString().length()){
+                            check = false;
+                            break;
+                        };
+                        if (Long.parseLong(splitstring)>255){
+                            check = false;
+                            break;
+                        }
+                    }
+                    //增加答案
+                    if (check ==true){
+                        list.add(str);
+                    }
+                }
+        return list;        
+    }
+}
+~~~
+
+
+
 # 94
 
 ~~~
@@ -2315,6 +2449,248 @@ class Solution {
     }
 }
 ```
+
+# 107  二叉树层序遍历 队列
+
+~~~
+/**
+ * Definition for a binary tree node.
+ * public class TreeNode {
+ *     int val;
+ *     TreeNode left;
+ *     TreeNode right;
+ *     TreeNode() {}
+ *     TreeNode(int val) { this.val = val; }
+ *     TreeNode(int val, TreeNode left, TreeNode right) {
+ *         this.val = val;
+ *         this.left = left;
+ *         this.right = right;
+ *     }
+ * }
+ */
+class Solution {
+    int maxLevel = 0;
+    Map<Integer,List<Integer>> map = new HashMap<Integer,List<Integer>>();
+    List<List<Integer>> lists = new ArrayList<List<Integer>>();
+
+    private void find(TreeNode tree, int level){
+        if (tree !=null){
+            maxLevel = Math.max(maxLevel,level);
+            if (map.containsKey(level)){
+                map.get(level).add(tree.val);
+                find(tree.left,level+1);
+                find(tree.right,level+1);
+            }else{
+                map.put(level,new ArrayList<Integer>());
+                map.get(level).add(tree.val);
+
+                System.out.println(map.get(level));
+
+                find(tree.left,level+1);
+                find(tree.right,level+1);
+            }
+            
+        }
+    }
+    public List<List<Integer>> levelOrderBottom(TreeNode root) {
+        
+        find(root,1);
+        for (int i=1;i<=maxLevel;i++){
+            lists.add(map.get(i));
+        }
+        Collections.reverse(lists);
+        return lists;
+    }
+}
+~~~
+
+~~~
+class Solution {
+    public List<List<Integer>> levelOrderBottom(TreeNode root) {
+        List<List<Integer>> levelOrder = new LinkedList<List<Integer>>();
+        if (root == null) {
+            return levelOrder;
+        }
+        Queue<TreeNode> queue = new LinkedList<TreeNode>();
+        queue.offer(root);
+        while (!queue.isEmpty()) {
+            List<Integer> level = new ArrayList<Integer>();
+            int size = queue.size();
+            for (int i = 0; i < size; i++) {
+                TreeNode node = queue.poll();
+                level.add(node.val);
+                TreeNode left = node.left, right = node.right;
+                if (left != null) {
+                    queue.offer(left);
+                }
+                if (right != null) {
+                    queue.offer(right);
+                }
+            }
+            levelOrder.add(0, level);
+        }
+        return levelOrder;
+    }
+}
+~~~
+
+# 110
+
+~~~
+/**
+ * Definition for a binary tree node.
+ * public class TreeNode {
+ *     int val;
+ *     TreeNode left;
+ *     TreeNode right;
+ *     TreeNode() {}
+ *     TreeNode(int val) { this.val = val; }
+ *     TreeNode(int val, TreeNode left, TreeNode right) {
+ *         this.val = val;
+ *         this.left = left;
+ *         this.right = right;
+ *     }
+ * }
+ */
+class Solution {
+    boolean ifBalanced = true;
+    private int find(TreeNode tree){
+        if (tree==null) return 0;
+        int l = find(tree.left);
+        int r = find(tree.right);
+        
+        if (Math.abs(l-r)>1) ifBalanced = false;
+        return Math.max(l,r)+1;
+
+    }
+    public boolean isBalanced(TreeNode root) {
+        if (root == null) return true;
+        find(root);
+        return ifBalanced;
+    }
+}
+~~~
+
+
+
+# 111
+
+~~~
+/**
+ * Definition for a binary tree node.
+ * public class TreeNode {
+ *     int val;
+ *     TreeNode left;
+ *     TreeNode right;
+ *     TreeNode() {}
+ *     TreeNode(int val) { this.val = val; }
+ *     TreeNode(int val, TreeNode left, TreeNode right) {
+ *         this.val = val;
+ *         this.left = left;
+ *         this.right = right;
+ *     }
+ * }
+ */
+class Solution {
+    int minLevel = 9999999;
+    private void  find(TreeNode tree, int level){
+        if (tree!=null){
+            if (tree.left==null && tree.right==null){
+                minLevel = Math.min(minLevel,level);
+            }
+            find(tree.left,level+1);
+            find(tree.right,level+1);
+        }
+    }
+    public int minDepth(TreeNode root) {
+        if (root==null) return 0;
+        find(root,1);
+        return minLevel;
+    }
+}
+~~~
+
+
+
+# 117 层序遍历 复杂操作
+
+~~~
+class Solution {
+    public Node connect_1(Node root) {
+        if (root == null) {
+            return null;
+        }
+        // 借助队列实现层次遍历
+        LinkedList<Node> queue = new LinkedList<>();
+        queue.add(root);
+        while (!queue.isEmpty()) {
+            int size = queue.size();
+            while (size-- > 0) {
+                Node node = queue.remove();
+                if (size > 0) {
+                    node.next = queue.peek();
+                }
+                if (node.left != null) {
+                    queue.add(node.left);
+                }
+                if (node.right != null) {
+                    queue.add(node.right);
+                }
+            }
+        }
+        return root;
+    }
+
+    public Node connect(Node root) {
+        if (root == null) {
+            return null;
+        }
+        if (root.left != null) {
+            if (root.right != null) {
+                // 若右子树不为空，则左子树的 next 即为右子树
+                root.left.next = root.right;
+            } else {
+                // 若右子树为空，则右子树的 next 由根节点的 next 得出
+                root.left.next = nextNode(root.next);
+            }
+        }
+        if (root.right != null) {
+            // 右子树的 next 由根节点的 next 得出
+            root.right.next = nextNode(root.next);
+        }
+        // 先确保 root.right 下的节点的已完全连接，因 root.left 下的节点的连接
+        // 需要 root.left.next 下的节点的信息，若 root.right 下的节点未完全连
+        // 接（即先对 root.left 递归），则 root.left.next 下的信息链不完整，将
+        // 返回错误的信息。可能出现的错误情况如下图所示。此时，底层最左边节点将无
+        // 法获得正确的 next 信息：
+        //                  o root
+        //                 / \
+        //     root.left  o —— o  root.right
+        //               /    / \
+        //              o —— o   o
+        //             /        / \
+        //            o        o   o
+        connect(root.right);
+        connect(root.left);
+        return root;
+    }
+
+    private Node nextNode(Node node) {
+        while (node != null) {
+            if (node.left != null) {
+                return node.left;
+            }
+            if (node.right != null) {
+                return node.right;
+            }
+            node = node.next;
+        }
+        return null;
+    }
+}
+~~~
+
+
 
 # 118
 
@@ -2660,6 +3036,41 @@ class Solution {
 
 
 
+# 145 树的后序遍历 人工栈
+
+~~~
+class Solution {
+    public List<Integer> postorderTraversal(TreeNode root) {
+        List<Integer> res = new ArrayList<Integer>();
+        if (root == null) {
+            return res;
+        }
+
+        Deque<TreeNode> stack = new LinkedList<TreeNode>();
+        TreeNode prev = null;
+        while (root != null || !stack.isEmpty()) {
+            while (root != null) {
+                stack.push(root);
+                root = root.left;
+            }
+            root = stack.pop();
+            if (root.right == null || root.right == prev) {
+                res.add(root.val);
+                prev = root;
+                root = null;
+            } else {
+                stack.push(root);
+                root = root.right;
+            }
+        }
+        return res;
+    }
+}
+
+~~~
+
+
+
 # 148
 
 ```
@@ -2707,6 +3118,23 @@ class Solution {
     }
 }
 ```
+
+# 151 Java String+List语言特性
+
+~~~
+class Solution {
+    public String reverseWords(String s) {
+        // 除去开头和末尾的空白字符
+        s = s.trim();
+        // 正则匹配连续的空白字符作为分隔符分割
+        List<String> wordList = Arrays.asList(s.split("\\s+"));
+        Collections.reverse(wordList);
+        return String.join(" ", wordList);
+    }
+}
+~~~
+
+
 
 # 152
 
@@ -5411,4 +5839,4 @@ class Solution {
 
 
 
-8 40 103 135 132 sword20 sword51 402
+8 40 103 135 132 sword20 sword51 402 117
