@@ -1242,6 +1242,59 @@ class Solution {
 }
 ```
 
+# 43 高精度乘法
+
+~~~
+class Solution {
+    public String multiply(String num1, String num2) {
+        String temp;
+        if (num1.equals("0") || num2.equals("0")) return "0";
+        if (num1.length()<num2.length()){
+            temp = num1;
+            num1 = num2;
+            num2 = temp;
+        }
+        int[] a = new int[num1.length()];
+        int[] b = new int[num2.length()];
+        int[] c = new int[num1.length()*2+1];
+
+        for (int i=0;i<num1.length();i++){
+            a[i]=num1.charAt(num1.length()-1-i)-48;
+        }
+        for (int i=0;i<num2.length();i++){
+            b[i]=num2.charAt(num2.length()-1-i)-48;
+        }
+
+        for (int j=0;j<b.length;j++)
+            for(int i=0;i<a.length;i++){
+                c[i+j] += a[i]*b[j];
+                c[i+j+1] += c[i+j] /10;
+                c[i+j] %=10;
+
+            }
+        for (int i=0;i<c.length-1;i++){
+            c[i+1] += c[i] /10;
+            c[i] %=10;
+        }
+        String str = "";
+        boolean t = true;
+        for (int i=c.length-1;i>=0;i--){
+            if (c[i]==0 && t==true){
+                continue;
+            }else{
+                t=false;
+                str+=c[i];
+            }
+        }
+
+        return str;
+
+    }
+}
+~~~
+
+
+
 # 45
 
 ```
@@ -1770,6 +1823,54 @@ class Solution {
     }
 }
 ```
+
+# 82
+
+~~~
+/**
+ * Definition for singly-linked list.
+ * public class ListNode {
+ *     int val;
+ *     ListNode next;
+ *     ListNode() {}
+ *     ListNode(int val) { this.val = val; }
+ *     ListNode(int val, ListNode next) { this.val = val; this.next = next; }
+ * }
+ */
+class Solution {
+    public ListNode deleteDuplicates(ListNode head) {
+        Set<Integer> set = new HashSet<Integer>();
+        Set<Integer> record = new HashSet<Integer>();
+        ListNode node = head;
+        while (node!=null){
+            if (!set.add(node.val)){
+                record.add(node.val);
+            }
+            node = node.next;
+        }
+        List<ListNode> list = new ArrayList<ListNode>();
+        node =head;
+        while (node!=null){
+            if (!record.contains(node.val)){
+                list.add(node);
+            }
+            node = node.next;
+        }
+        for (int i=0;i<list.size()-1;i++){
+            list.get(i).next = list.get(i+1);
+        }
+
+        if (list.size()==0){
+            return null;
+        }
+        list.get(list.size()-1).next = null;
+        return list.get(0);
+
+    }
+}
+~~~
+
+
 
 # 83
 
@@ -2755,6 +2856,23 @@ public:
 };
 ~~~
 
+# 189
+
+~~~
+class Solution {
+    public void rotate(int[] nums, int k) {
+        int n = nums.length;
+        int[] newArr = new int[n];
+        for (int i = 0; i < n; ++i) {
+            newArr[(i + k) % n] = nums[i];
+        }
+        System.arraycopy(newArr, 0, nums, 0, n);
+    }
+}
+~~~
+
+
+
 # 198
 
 ~~~
@@ -3625,6 +3743,23 @@ class Solution {
 }
 ```
 
+# 344
+
+~~~
+class Solution {
+    public void reverseString(char[] s) {
+        for(int i=0;i<s.length/2;i++){
+            char temp = s[i];
+            s[i] = s[s.length-1-i];
+            s[s.length-1-i] = temp;
+        }
+        return ;
+    }
+}
+~~~
+
+
+
 # 347
 
 ```
@@ -3752,6 +3887,43 @@ class Solution {
 }
 
 ```
+
+# 402 贪心+单调栈
+
+~~~
+class Solution {
+    public String removeKdigits(String num, int k) {
+        Deque<Character> deque = new LinkedList<Character>();
+        int length = num.length();
+        for (int i = 0; i < length; ++i) {
+            char digit = num.charAt(i);
+            while (!deque.isEmpty() && k > 0 && deque.peekLast() > digit) {
+                deque.pollLast();
+                k--;
+            }
+            deque.offerLast(digit);
+        }
+        
+        for (int i = 0; i < k; ++i) {
+            deque.pollLast();
+        }
+        
+        StringBuilder ret = new StringBuilder();
+        boolean leadingZero = true;
+        while (!deque.isEmpty()) {
+            char digit = deque.pollFirst();
+            if (leadingZero && digit == '0') {
+                continue;
+            }
+            leadingZero = false;
+            ret.append(digit);
+        }
+        return ret.length() == 0 ? "0" : ret.toString();
+    }
+}
+~~~
+
+
 
 # 406
 
@@ -4203,6 +4375,47 @@ class Solution {
 }
 ~~~
 
+# 547 并查集
+
+~~~
+class Solution {
+    public int findCircleNum(int[][] isConnected) {
+        int provinces = isConnected.length;
+        int[] parent = new int[provinces];
+        for (int i = 0; i < provinces; i++) {
+            parent[i] = i;
+        }
+        for (int i = 0; i < provinces; i++) {
+            for (int j = i + 1; j < provinces; j++) {
+                if (isConnected[i][j] == 1) {
+                    union(parent, i, j);
+                }
+            }
+        }
+        int circles = 0;
+        for (int i = 0; i < provinces; i++) {
+            if (parent[i] == i) {
+                circles++;
+            }
+        }
+        return circles;
+    }
+
+    public void union(int[] parent, int index1, int index2) {
+        parent[find(parent, index1)] = find(parent, index2);
+    }
+
+    public int find(int[] parent, int index) {
+        if (parent[index] != index) {
+            parent[index] = find(parent, parent[index]);
+        }
+        return parent[index];
+    }
+}
+~~~
+
+
+
 # 560 HashMap
 
 ~~~
@@ -4395,6 +4608,36 @@ class Foo {
         
         seam2.acquire();
         printThird.run();
+    }
+}
+~~~
+
+
+
+# 1047
+
+~~~
+class Solution {
+    public String removeDuplicates(String S) {
+        Stack<Character> stack = new Stack<Character>();
+        char[] charArray = S.toCharArray();
+        for (char c : charArray){
+            if (stack.isEmpty()){
+                stack.push(c);
+                continue;
+            }
+            if (stack.peek()==c){
+                stack.pop();
+                continue;
+            }
+            stack.push(c);
+        }
+        String str = new String();
+        while (!stack.isEmpty()){
+            str+=stack.pop();
+        }
+        
+        return new String(new StringBuilder(str).reverse());
     }
 }
 ~~~
@@ -4918,6 +5161,81 @@ class Solution {
 }
 ~~~
 
+# Sword51 离散化树状数组
+
+~~~
+class Solution {
+    public int reversePairs(int[] nums) {
+        int n = nums.length;
+        int[] tmp = new int[n];
+        System.arraycopy(nums, 0, tmp, 0, n);
+        // 离散化
+        Arrays.sort(tmp);
+        for (int i = 0; i < n; ++i) {
+            nums[i] = Arrays.binarySearch(tmp, nums[i]) + 1;
+        }
+        // 树状数组统计逆序对
+        BIT bit = new BIT(n);
+        int ans = 0;
+        for (int i = n - 1; i >= 0; --i) {
+            ans += bit.query(nums[i] - 1);
+            bit.update(nums[i]);
+        }
+        return ans;
+    }
+}
+
+class BIT {
+    private int[] tree;
+    private int n;
+
+    public BIT(int n) {
+        this.n = n;
+        this.tree = new int[n + 1];
+    }
+
+    public static int lowbit(int x) {
+        return x & (-x);
+    }
+
+    public int query(int x) {
+        int ret = 0;
+        while (x != 0) {
+            ret += tree[x];
+            x -= lowbit(x);
+        }
+        return ret;
+    }
+
+    public void update(int x) {
+        while (x <= n) {
+            ++tree[x];
+            x += lowbit(x);
+        }
+    }
+}
+~~~
+
+
+
+# Interview_0101
+
+~~~
+class Solution {
+    public boolean isUnique(String astr) {
+        Set<Character> set = new HashSet<Character>();
+        for (int i=0;i<astr.length();i++){
+            if (!set.add(astr.charAt(i))){
+                return false;
+            }
+        }
+        return true;
+    }
+}
+~~~
+
+
+
 # Interview_1625
 
 ~~~
@@ -5006,6 +5324,33 @@ public class LRUCache {
 }
 ~~~
 
+# Interview_0203
+
+~~~
+/**
+ * Definition for singly-linked list.
+ * public class ListNode {
+ *     int val;
+ *     ListNode next;
+ *     ListNode(int x) { val = x; }
+ * }
+ */
+class Solution {
+    public void deleteNode(ListNode node) {
+        ListNode current = node;
+        while (current.next.next!=null){
+            current.val = current.next.val;
+            current = current.next;
+        }
+        current.val = current.next.val;
+        current.next = null;
+        return ;
+    }
+}
+~~~
+
+
+
 # Interview_0205
 
 ~~~
@@ -5066,4 +5411,4 @@ class Solution {
 
 
 
-8 40 103 135 132 sword20
+8 40 103 135 132 sword20 sword51 402
