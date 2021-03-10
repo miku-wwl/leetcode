@@ -1113,6 +1113,66 @@ class Solution {
 }
 ```
 
+
+
+# 36 18个哈希表
+
+~~~
+class Solution {
+    public boolean isValidSudoku(char[][] board) {
+        Set<Character> set = new HashSet<Character>();
+        
+        for (int i=0;i<9;i++)
+            {
+                set.clear();
+                for (int j=0;j<9;j++){
+                    if (board[i][j]!='.' && !set.add(board[i][j])) {
+                        return false;
+                    }
+                }
+            }
+        for (int j=0;j<9;j++){
+            set.clear();
+            for (int i=0;i<9;i++){
+                if (board[i][j]!='.' && !set.add(board[i][j])) {
+                    return false;
+                }
+            }
+        }
+
+        for (int i=0;i<9;i=i+3)
+            for (int j=0;j<9;j=j+3){
+                set.clear();
+                for (int k=i;k<=i+2;k++)
+                    for (int l=j;l<=j+2;l++){
+                        if (board[k][l]!='.' && !set.add(board[k][l]))
+                            return false;
+                    }
+
+            }
+        return true;          
+
+
+        // (0,0) (2,2)
+        // (3,0) (5,2)
+        // (6,0) (8,2)
+
+        // (0,3) (2,5)
+        // (3,3) (5,5)
+        // (6,3) (8,5)
+
+        // (0,6) (2,8)
+        // (3,6) (5,8)
+        // (6,6) (8,8)
+
+
+
+    }
+}
+~~~
+
+
+
 # 39
 
 ```
@@ -1751,6 +1811,62 @@ class Solution {
     }
 }
 ```
+
+# 73
+
+~~~
+class Solution {
+  public void setZeroes(int[][] matrix) {
+    Boolean isCol = false;
+    int R = matrix.length;
+    int C = matrix[0].length;
+
+    for (int i = 0; i < R; i++) {
+
+      // Since first cell for both first row and first column is the same i.e. matrix[0][0]
+      // We can use an additional variable for either the first row/column.
+      // For this solution we are using an additional variable for the first column
+      // and using matrix[0][0] for the first row.
+      if (matrix[i][0] == 0) {
+        isCol = true;
+      }
+
+      for (int j = 1; j < C; j++) {
+        // If an element is zero, we set the first element of the corresponding row and column to 0
+        if (matrix[i][j] == 0) {
+          matrix[0][j] = 0;
+          matrix[i][0] = 0;
+        }
+      }
+    }
+
+    // Iterate over the array once again and using the first row and first column, update the elements.
+    for (int i = 1; i < R; i++) {
+      for (int j = 1; j < C; j++) {
+        if (matrix[i][0] == 0 || matrix[0][j] == 0) {
+          matrix[i][j] = 0;
+        }
+      }
+    }
+
+    // See if the first row needs to be set to zero as well
+    if (matrix[0][0] == 0) {
+      for (int j = 0; j < C; j++) {
+        matrix[0][j] = 0;
+      }
+    }
+
+    // See if the first column needs to be set to zero as well
+    if (isCol) {
+      for (int i = 0; i < R; i++) {
+        matrix[i][0] = 0;
+      }
+    }
+  }
+}
+~~~
+
+
 
 # 75
 
@@ -2610,6 +2726,70 @@ class Solution {
 }
 ~~~
 
+# 116
+
+~~~
+/*
+// Definition for a Node.
+class Node {
+    public int val;
+    public Node left;
+    public Node right;
+    public Node next;
+
+    public Node() {}
+    
+    public Node(int _val) {
+        val = _val;
+    }
+
+    public Node(int _val, Node _left, Node _right, Node _next) {
+        val = _val;
+        left = _left;
+        right = _right;
+        next = _next;
+    }
+};
+*/
+
+class Solution {
+    public Node connect(Node root) {
+        if (root ==null) return null;
+
+        Queue<Node> q = new LinkedList<Node>();
+        Queue<Integer> level = new LinkedList<Integer>();
+        q.add(root);
+        level.add(1);
+        while (!q.isEmpty()){
+            Node current = q.poll();
+            int currentLevel = level.poll();
+            if (q.size()==0){
+                current.next=null;
+            }else{
+                if (currentLevel<level.peek()){
+                    current.next=null;
+                }else{
+                    current.next = q.peek();
+                }
+            }
+            if (current.left!=null){
+                q.add(current.left);
+                level.add(currentLevel+1);
+            }
+            if (current.right!=null){
+                q.add(current.right);
+                level.add(currentLevel+1);
+            }
+        }
+    return root;
+
+
+    }
+}
+~~~
+
+
+
 
 
 # 117 层序遍历 复杂操作
@@ -3226,6 +3406,29 @@ class Solution {
 }
 ~~~
 
+# 153
+
+~~~
+class Solution {
+    public int findMin(int[] nums) {
+    int left = 0, right = nums.length - 1;
+    while (left < right) {
+        int middle = (left + right) / 2;
+        if (nums[middle] < nums[right]) {
+            // middle可能是最小值
+            right = middle;
+        } else {
+            // middle肯定不是最小值
+            left = middle + 1;
+        }
+    }
+    return nums[left];
+}
+}
+~~~
+
+
+
 # 155
 
 ~~~
@@ -3301,6 +3504,59 @@ public class Solution {
     }
 }
 ~~~
+
+# 165
+
+~~~
+class Solution {
+    public int compareVersion(String version1, String version2) {
+        int v1_point=0;
+        int v2_point=0;
+        int mark = 1;
+        for (int i=0;i<version1.length();i++){
+            if (version1.charAt(i)=='.'){
+                v1_point++;
+            }
+        }
+        for (int i=0;i<version2.length();i++){
+            if (version2.charAt(i)=='.'){
+                v2_point++;
+            }
+        }
+        if (v1_point<v2_point){
+            String tempStr = version1;
+            version1 = version2;
+            version2 = tempStr;
+            int tempInt = v1_point;
+            v1_point = v2_point;
+            v2_point = tempInt;
+
+            mark = -1;
+        }
+        //System.out.println(v1_point-v2_point);
+        for (int i=1;i<=(v1_point-v2_point);i++){
+            version2+=".0";
+        }
+        
+        // System.out.println(version1);
+        // System.out.println(version2);
+
+        String[] v1 = version1.split("\\.");
+        String[] v2 = version2.split("\\.");
+        
+        int answer = 0;
+        for (int i=0;i<v1.length;i++){
+            Integer x = Integer.parseInt(v1[i]);
+            Integer y = Integer.parseInt(v2[i]);
+            if (x>y) return 1*mark;
+            if (x<y) return -1*mark;
+        } 
+        return 0;
+    }
+}
+~~~
+
+
 
 # 168
 
@@ -3383,6 +3639,25 @@ public:
     }
 };
 ~~~
+
+# 171
+
+~~~
+class Solution {
+    public int titleToNumber(String columnTitle) {
+        String str = new StringBuilder(columnTitle).reverse().toString();
+        int carry = 1;
+        int sum = 0;
+        for (int i=0;i<str.length();i++){
+            sum+=carry*(str.charAt(i)-'A'+1);
+            carry*=26;
+        }
+        return sum;
+    }
+}
+~~~
+
+
 
 # 172
 
@@ -3781,6 +4056,64 @@ class Solution {
 
 
 
+# 212
+
+~~~
+class Solution {
+    int m;
+    int n;
+    char[][] f;
+    int [][] block;
+    Set<String> set = new HashSet<String>();
+    List<String> list = new ArrayList<String>();
+
+
+    private void find(int x,int y , String word, int position){
+        if (x>=0 && x<=m-1 && y>=0 && y<=n-1 && block[x][y]==0){
+            if (position==word.length()-1){
+                if (f[x][y]==word.charAt(position)){
+                set.add(word);
+                }
+            }else{
+                if (f[x][y]==word.charAt(position)){
+                    block[x][y] = 1;
+                    find(x+1,y,word,position+1);
+                    find(x-1,y,word,position+1);
+                    find(x,y+1,word,position+1);
+                    find(x,y-1,word,position+1);
+                    block[x][y] = 0;
+                }
+            }
+        }
+        
+    }
+    public List<String> findWords(char[][] board, String[] words) {
+        m = board.length;
+        n = board[0].length;
+        f = board;
+        block = new int[m][n];
+
+        for (String word : words){
+            char first = word.charAt(0);
+            for (int i=0;i<m;i++)
+                for (int j=0;j<n;j++)
+
+                    if (first == board[i][j]){                       
+                        find(i,j,word,0);
+                    }
+        }
+
+        for (String i: set){
+            list.add(i);
+        }
+        
+        return list;
+    }
+}
+~~~
+
+
+
 # 215
 
 ```
@@ -3802,6 +4135,45 @@ public class Solution {
     }
 }
 ```
+
+# 218 复杂优先队列
+
+~~~
+class Solution {
+    public List<List<Integer>> getSkyline(int[][] buildings) {
+        PriorityQueue<int[]> pq = new PriorityQueue<>((a, b) -> a[0] != b[0] ? a[0] - b[0] : a[1] - b[1]);
+        for (int[] building : buildings) {
+            pq.offer(new int[] { building[0], -building[2] });
+            pq.offer(new int[] { building[1], building[2] });
+        }
+
+        List<List<Integer>> res = new ArrayList<>();
+
+        TreeMap<Integer, Integer> heights = new TreeMap<>((a, b) -> b - a);
+        heights.put(0, 1);
+        int left = 0, height = 0;
+        while (!pq.isEmpty()) {
+            int[] arr = pq.poll();
+            if (arr[1] < 0) {
+                heights.put(-arr[1], heights.getOrDefault(-arr[1], 0) + 1);
+            } else {
+                heights.put(arr[1], heights.get(arr[1]) - 1);
+                if (heights.get(arr[1]) == 0) heights.remove(arr[1]);
+            }
+            int maxHeight = heights.keySet().iterator().next();
+            if (maxHeight != height) {
+                left = arr[0];
+                height = maxHeight;
+                res.add(Arrays.asList(left, height));
+            }
+        }
+
+        return res;
+    }
+}
+~~~
+
+
 
 # 221
 
@@ -3981,6 +4353,60 @@ class Solution {
 }
 ```
 
+# 235
+
+~~~
+/**
+ * Definition for a binary tree node.
+ * public class TreeNode {
+ *     int val;
+ *     TreeNode left;
+ *     TreeNode right;
+ *     TreeNode(int x) { val = x; }
+ * }
+ */
+
+class Solution {
+    TreeNode answer;
+    boolean lock = true;
+    Set<TreeNode> set = new HashSet<TreeNode>();
+    private boolean findleft(TreeNode tree, TreeNode left){
+        if (tree!=null){
+            if (tree == left || findleft(tree.left,left) || findleft(tree.right,left))  {
+                set.add(tree);
+                return true;
+            }
+            return false;
+        }
+        return false;
+    }
+
+    private boolean findright(TreeNode tree,TreeNode right){
+        if (tree!=null){
+            if (tree == right ||findright(tree.left,right) || findright(tree.right,right))  {
+                if (lock==true && set.contains(tree)){
+                    answer = tree;
+                    lock = false;
+                }
+                return true;
+            }
+            return false;
+
+        }
+        return false;
+    }
+
+    public TreeNode lowestCommonAncestor(TreeNode root, TreeNode p, TreeNode q) {
+        Set<TreeNode> set = new HashSet<TreeNode>();
+        findleft(root,p);
+        findright(root,q);
+        return answer;
+    }
+}
+~~~
+
+
+
 # 239 单调队列和优先队列
 
 ```java
@@ -4091,7 +4517,7 @@ class Solution {
 }
 ```
 
-# 253 优先队列 双元素快排 单调栈
+# 253 优先队列 双元素快排 单调栈 穷举
 
 ~~~
 class Solution {
@@ -4226,6 +4652,136 @@ class Solution:
             ans, intervals, tmp, b = ans + 1, b, [], []
         return ans
 ```
+
+~~~
+class Solution {
+    int answer = 0;
+    public int minMeetingRooms(int[][] intervals) {
+        for (int i=0;i<intervals.length;i++){
+            int count = 1;
+            for (int j=0;j<intervals.length;j++)
+                if (i!=j){
+                    if ((intervals[i][0]<intervals[j][1] && intervals[i][0]>=intervals[j][0]) || 
+                        (intervals[i][1]<intervals[j][1] && intervals[i][0]>intervals[j][0])){
+                        count++;
+                    }
+                }
+            answer =Math.max(answer,count);    
+        }
+        return answer;
+    }
+}
+~~~
+
+
+
+# 268
+
+~~~
+class Solution {
+    public int missingNumber(int[] nums) {
+        long l1 = 0;
+        long l2 = 0;
+        int n = nums.length;
+        for (int i:nums){
+            l1+=i;
+        }
+        l2 = n*(n+1)/2;
+
+        int ans = (int)(l2-l1);
+        return ans;
+    }
+}
+~~~
+
+
+
+# 273  优美的字符串处理
+
+~~~
+class Solution {
+    private final String[] THOUSAND = {"", "Thousand", "Million", "Billion"};
+    private final String[] LESS_THAN_TWENTY = {"", "One", "Two", "Three", "Four", "Five", "Six", "Seven", "Eight", "Nine", "Ten", "Eleven", "Twelve", "Thirteen", "Fourteen", "Fifteen", "Sixteen", "Seventeen", "Eighteen", "Nineteen"};
+    private final String[] HUNDRED = {"", "", "Twenty", "Thirty", "Forty", "Fifty", "Sixty", "Seventy", "Eighty", "Ninety"};
+    public String numberToWords(int num) {
+        if(num == 0) return "Zero";
+
+        StringBuilder sb = new StringBuilder();
+        int index = 0;
+        while(num > 0) {
+            if(num % 1000 != 0) {
+                StringBuilder tmp = new StringBuilder();
+                helper(num % 1000, tmp);
+                sb.insert(0, tmp.append(THOUSAND[index]).append(" "));
+            }
+            index++;
+            num /= 1000;
+        }
+        return sb.toString().trim();
+    }
+
+    private void helper(int num, StringBuilder tmp) {
+        if(num == 0) return;
+        if(num < 20) {
+            tmp.append(LESS_THAN_TWENTY[num]).append(" ");
+        }else if(num < 100) {
+            tmp.append(HUNDRED[num / 10]).append(" ");
+            helper(num % 10, tmp);
+        }else {
+            tmp.append(LESS_THAN_TWENTY[num / 100]).append(" Hundred").append(" ");
+            helper(num % 100, tmp);
+        }
+    }
+}
+~~~
+
+
+
+# 277
+
+~~~
+/* The knows API is defined in the parent class Relation.
+      boolean knows(int a, int b); */
+
+public class Solution extends Relation {
+    public int findCelebrity(int n) {
+        Set<Integer> set = new HashSet<Integer>();
+        for (int i=0;i<n;i++) set.add(i);
+
+        for (int i=0;i<n;i++)
+            for (int j=0;j<n;j++)
+                if (i!=j){
+                    if (knows(i,j)==true){
+                        set.remove(i);
+                        break;
+                    }
+                }
+
+        if (set.size()==0) return -1;
+
+        Set<Integer> newset = new HashSet<Integer>(set);
+        for (int i: set){
+            for (int j=0;j<n;j++){
+                if (knows(j,i)==false){
+                    newset.remove(i);
+                }
+            }
+        }
+
+        set = newset;
+
+        if (set.size()==0 || set.size()>1) return -1;
+
+        for (int i: set){
+            return i;  //在这里退出
+        }
+
+        return 0;
+    }
+}
+~~~
+
+
 
 # 279
 
@@ -4534,6 +5090,61 @@ class Solution {
     }
 }
 ```
+
+# 348
+
+~~~
+class TicTacToe {
+    int n;
+    int[][] rows;
+    int[][] columns;
+    int[][] diagonals;
+
+    /** Initialize your data structure here. */
+    public TicTacToe(int n) {
+        this.n = n;
+        rows = new int[3][n]; // 3 表示 player1 和 player2，索引 0 是无用的
+        columns = new int[3][n];
+        diagonals = new int[3][2];
+    }
+    
+    /** Player {player} makes a move at ({row}, {col}).
+        @param row The row of the board.
+        @param col The column of the board.
+        @param player The player, can be either 1 or 2.
+        @return The current winning condition, can be either:
+                0: No one wins.
+                1: Player 1 wins.
+                2: Player 2 wins. */
+    public int move(int row, int col, int player) {
+        if (++rows[player][row] == n) {
+            // 某玩家在在第 row 行上放了 n 个棋子
+            return player;
+        }
+        if (++columns[player][col] == n) {
+            // 某玩家在在第 col 列上放了 n 个棋子
+            return player;
+        }
+        if (row == col && ++diagonals[player][0] == n) {
+            // 某玩家在在正对角线上上放了 n 个棋子
+            return player;
+        }
+        if ((row + col == n - 1) && ++diagonals[player][1] == n) {
+            // 某玩家在负对角线上放了 n 个棋子
+            return player;
+        }
+
+        return 0;
+    }
+}
+/**
+ * Your TicTacToe object will be instantiated and called as such:
+ * TicTacToe obj = new TicTacToe(n);
+ * int param_1 = obj.move(row,col,player);
+ */
+~~~
+
+
 
 # 349
 
@@ -5023,6 +5634,132 @@ class Solution {
     }
 }
 ```
+
+# 443
+
+~~~
+class Solution {
+    public int compress(char[] chars) {
+        char current;
+        int num;
+        String str="";
+        current = chars[0];
+        num = 1;
+
+        for (int i=1;i<chars.length;i++){
+            if (current == chars[i]){
+                num++;
+            }else{
+                if (num==1){
+                    str += current;
+                }else{
+                    str = str+ current + num;
+                }
+                current = chars[i];
+                num=1;
+            }
+        }
+
+        if (num==1){
+            str += current;
+        }else{
+            str = str+current+num;
+        }
+
+        for (int i=0;i<str.length();i++){
+            chars[i] = str.charAt(i);
+        }
+
+        
+        return str.length();
+
+
+    }
+}
+~~~
+
+
+
+
+
+# 445
+
+~~~
+/**
+ * Definition for singly-linked list.
+ * public class ListNode {
+ *     int val;
+ *     ListNode next;
+ *     ListNode(int x) { val = x; }
+ * }
+ */
+class Solution {
+    public ListNode addTwoNumbers(ListNode l1, ListNode l2) {
+        if( l1.val==0) return l2;
+        if( l2.val==0) return l1;
+
+        
+        List<ListNode> list1 =new ArrayList<ListNode>();
+        List<ListNode> list2 =new ArrayList<ListNode>();
+    
+        ListNode node = l1;
+        while (node!=null){
+            list1.add(node);
+            node=node.next;
+        }
+        node = l2;
+        while (node!=null){
+            list2.add(node);
+            node=node.next;
+        }
+
+
+        if (list1.size()<list2.size()){
+            List<ListNode> temp;
+            temp = list1;
+            list1 = list2;
+            list2 = temp;
+        }
+
+        Collections.reverse(list1);
+        Collections.reverse(list2);
+
+        list1.add(new ListNode(0));
+
+        for (int i = 0;i<list2.size();i++){
+            list1.get(i).val+=list2.get(i).val;
+            if (list1.get(i).val>=10){
+                list1.get(i).val %= 10;
+                list1.get(i+1).val++;
+            }
+        }
+
+        for (int i = 0;i<list1.size()-1;i++)
+            if (list1.get(i).val>=10){
+                list1.get(i).val %= 10;
+                list1.get(i+1).val++;
+            }
+
+        if (list1.get(list1.size()-1).val>0){
+            for (int i =list1.size()-1;i>=1;i--){
+                list1.get(i).next = list1.get(i-1);
+            }
+            list1.get(0).next =null;
+            return list1.get(list1.size()-1);
+        }
+
+        for (int i =list1.size()-2;i>=1;i--){
+            list1.get(i).next = list1.get(i-1);
+        }
+        list1.get(0).next =null;
+        return list1.get(list1.size()-2);
+
+    
+    }
+}
+~~~
+
+
 
 # 448
 
@@ -5610,6 +6347,50 @@ class Solution {
                 f[i][j] = Math.max(f[i][j-1],f[i][j]);
             }
         return f[text1.length()][text2.length()];
+    }
+}
+~~~
+
+
+
+# 1239
+
+~~~
+class Solution {
+    List<String> _arr;
+    int answer = -1;
+
+    private void find(int current,int length, List<String> list){
+        if (current == _arr.size()){
+            answer = Math.max(answer,length);
+        }else{
+            Set<Character> set = new HashSet<Character>();
+            for (String s :list)
+                for (int i=0;i<s.length();i++){
+                    set.add(s.charAt(i));
+                }
+            String currentString = _arr.get(current);
+            boolean check = true;
+            for (int i=0;i<currentString.length();i++)
+                if (!set.add(currentString.charAt(i))){
+                    check = false;
+                    break;
+                }
+            if (check ==true){
+                List<String> tempList = new ArrayList<String>(list);
+                tempList.add(currentString);
+                find(current+1,length+currentString.length(),tempList);
+            }    
+            find(current+1,length,new ArrayList<String>(list));
+        }   
+            
+        return ;
+    }
+
+    public int maxLength(List<String> arr) {
+        _arr = arr;
+        find(0,0,new ArrayList<String>());
+        return answer;
     }
 }
 ~~~
@@ -6360,4 +7141,4 @@ class Solution {
 
 
 
-8 40 103 135 132 sword20 sword51 402 117  145 743 127
+8 40 103 135 132 sword20 sword51 402 117  145 743 127 273 218

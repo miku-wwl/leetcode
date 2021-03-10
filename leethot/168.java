@@ -1,10 +1,10 @@
 class Solution {
     public String convertToTitle(int columnNumber) {
       String str = "";
-      if (columnNumber<=26) return new Character((char)('A'+columnNumber-1)).toString();
+      if (columnNumber<=26) return Character.valueOf((char)('A'+columnNumber-1)).toString();
 
        //Character c = new Character.valueOf('A');
-       char[] c = new char[100]; 
+       //char[] c = new char[100]; 
        
 
         while (columnNumber>26){
