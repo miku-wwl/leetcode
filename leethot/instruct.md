@@ -2814,6 +2814,73 @@ class Solution {
 }
 ```
 
+# 127  哈希表建图+双向宽搜
+
+~~~
+class Solution {
+    Map<String, Integer> wordId = new HashMap<String, Integer>();
+    List<List<Integer>> edge = new ArrayList<List<Integer>>();
+    int nodeNum = 0;
+
+    public int ladderLength(String beginWord, String endWord, List<String> wordList) {
+        for (String word : wordList) {
+            addEdge(word);
+        }
+        addEdge(beginWord);
+        if (!wordId.containsKey(endWord)) {
+            return 0;
+        }
+        int[] dis = new int[nodeNum];
+        Arrays.fill(dis, Integer.MAX_VALUE);
+        int beginId = wordId.get(beginWord), endId = wordId.get(endWord);
+        dis[beginId] = 0;
+
+        Queue<Integer> que = new LinkedList<Integer>();
+        que.offer(beginId);
+        while (!que.isEmpty()) {
+            int x = que.poll();
+            if (x == endId) {
+                return dis[endId] / 2 + 1;
+            }
+            for (int it : edge.get(x)) {
+                if (dis[it] == Integer.MAX_VALUE) {
+                    dis[it] = dis[x] + 1;
+                    que.offer(it);
+                }
+            }
+        }
+        return 0;
+    }
+
+    public void addEdge(String word) {
+        addWord(word);
+        int id1 = wordId.get(word);
+        char[] array = word.toCharArray();
+        int length = array.length;
+        for (int i = 0; i < length; ++i) {
+            char tmp = array[i];
+            array[i] = '*';
+            String newWord = new String(array);
+            addWord(newWord);
+            int id2 = wordId.get(newWord);
+            edge.get(id1).add(id2);
+            edge.get(id2).add(id1);
+            array[i] = tmp;
+        }
+    }
+
+    public void addWord(String word) {
+        if (!wordId.containsKey(word)) {
+            wordId.put(word, nodeNum++);
+            edge.add(new ArrayList<Integer>());
+        }
+    }
+}
+
+~~~
+
+
+
 # 128
 
 ```
@@ -3337,6 +3404,49 @@ class Solution {
 
 
 
+# 179
+
+~~~
+class Solution {
+    public String largestNumber(int[] nums) {
+        
+        String[] list = new String[nums.length];
+        
+        for (int i=0;i<nums.length;i++){
+             list[i] = String.valueOf(nums[i]);
+        }
+
+        for (int i=0;i<list.length;i++)
+            for (int j=i+1;j<list.length;j++){
+                if ((list[i]+list[j]).compareTo((list[j]+list[i]))<0){
+                    String temp;
+                    temp = list[i];
+                    list[i] = list[j];
+                    list[j] = temp;
+                }
+            }
+            
+        String ans ="";
+        for (int i=0;i<list.length;i++){
+            ans+=list[i];
+        }
+
+        boolean zero = true;
+        for (int i=0;i<ans.length();i++){
+            if (ans.charAt(i)!='0'){
+                zero = false;
+                break;
+            }
+        }
+        if (zero == true) return "0";
+
+        return ans;
+    }
+}
+~~~
+
+
+
 # 189
 
 ~~~
@@ -3721,6 +3831,51 @@ class Solution {
     }
 }
 ```
+
+# 225
+
+~~~
+class MyStack {
+    Queue<Integer> queue1;
+    Queue<Integer> queue2;
+
+    /** Initialize your data structure here. */
+    public MyStack() {
+        queue1 = new LinkedList<Integer>();
+        queue2 = new LinkedList<Integer>();
+    }
+    
+    /** Push element x onto stack. */
+    public void push(int x) {
+        queue2.offer(x);
+        while (!queue1.isEmpty()) {
+            queue2.offer(queue1.poll());
+        }
+        Queue<Integer> temp = queue1;
+        queue1 = queue2;
+        queue2 = temp;
+    }
+    
+    /** Removes the element on top of the stack and returns that element. */
+    public int pop() {
+        return queue1.poll();
+    }
+    
+    /** Get the top element. */
+    public int top() {
+        return queue1.peek();
+    }
+    
+    /** Returns whether the stack is empty. */
+    public boolean empty() {
+        return queue1.isEmpty();
+    }
+}
+
+
+~~~
+
+
 
 # 226
 
@@ -4414,6 +4569,25 @@ class Solution {
 
 
 
+# 378
+
+~~~
+class Solution {
+    public int kthSmallest(int[][] matrix, int k) {
+        List<Integer> list =new  ArrayList<Integer>();
+        int n = matrix.length;
+        for (int i=0;i<n;i++)
+            for (int j:matrix[i]){
+                list.add(j);
+            }
+        Collections.sort(list);
+        return list.get(k-1);    
+    }
+}
+~~~
+
+
+
 # 394 递归 括号处理
 
 ```
@@ -4660,6 +4834,39 @@ class Solution {
 }
 ~~~
 
+# 419
+
+~~~
+class Solution {
+    public int countBattleships(char[][] board) {
+        int count = 0;
+        for (int i = 0; i < board.length; i++) {
+            for (int j = 0; j < board[0].length; j++) {
+                if (board[i][j] == 'X') {
+                    count++;
+                    board[i][j] = '.';
+                    int a = i + 1;
+                    int b = j;
+                    // 遍历行
+                    while (a < board.length && board[a][b] == 'X') {
+                        board[a++][b] = '.';
+                    }
+                    a = i;
+                    b = j + 1;
+                    // 遍历列
+                    while (b < board[0].length && board[a][b] == 'X') {
+                        board[a][b++] = '.';
+                    }
+                }
+            }
+        }
+        return count;
+    }
+}
+~~~
+
+
+
 # 424 双指针 滑动窗口
 
 ~~~
@@ -4834,6 +5041,56 @@ class Solution {
 }
 ~~~
 
+# 474 背包问题
+
+~~~
+class Solution {
+    public int findMaxForm(String[] strs, int m, int n) {
+        //f[i][j][k]=f[i-one[k]][j-zero[k]][k-1]+1;
+        int[] zero = new int[strs.length];
+        int[] one = new int [strs.length];
+        for (int i=0;i<strs.length;i++){
+            for (int j=0;j<strs[i].length();j++){
+                if (strs[i].charAt(j) == '0'){
+                    zero[i]++;
+                }else{
+                    one[i]++;
+                }
+            }
+        }
+        
+        int[][][] f = new int[m+1][n+1][strs.length+1];
+
+        for (int k=1;k<=strs.length;k++)
+            for (int i=0;i<=m;i++)
+                for (int j=0;j<=n;j++){
+                    f[i][j][k] = f[i][j][k-1];
+                    if (i-zero[k-1]>=0 && j-one[k-1]>=0){
+                        f[i][j][k] = Math.max(f[i][j][k],f[i-zero[k-1]][j-one[k-1]][k-1]+1);
+                    }
+                }
+        // System.out.println(m);
+        // for (int k=1;k<=strs.length;k++){
+        //     for (int i=0;i<=m;i++)
+        //         for (int j=0;j<=n;j++){
+        //             System.out.print(f[i][j][k]);
+        //         }
+        //     System.out.println();
+        // }
+
+        return f[m][n][strs.length];
+
+
+
+
+    }
+}
+~~~
+
+
+
+
+
 # 494
 
 ~~~
@@ -4918,6 +5175,43 @@ class Solution {
             f[i]=f[i-1]+f[i-2];
         }
         return f[n];
+    }
+}
+~~~
+
+# 523   哈希+动态规划
+
+~~~
+import java.util.HashMap;
+import java.util.Map;
+
+public class Solution {
+
+    public boolean checkSubarraySum(int[] nums, int k) {
+        int sum = 0;
+
+        // key：区间 [0..i] 里所有元素的和 % k
+        // value：下标 i
+        Map<Integer, Integer> map = new HashMap<>();
+        // 理解初始化的意义
+        map.put(0, -1);
+        int len = nums.length;
+        for (int i = 0; i < len; i++) {
+            sum += nums[i];
+            if (k != 0) {
+                sum = sum % k;
+            }
+            
+            if (map.containsKey(sum)) {
+                if (i - map.get(sum) > 1) {
+                    return true;
+                }
+            } else {
+                map.put(sum, i);
+            }
+
+        }
+        return false;
     }
 }
 ~~~
@@ -5126,6 +5420,59 @@ class Solution {
 }
 ```
 
+# 743 SPFA + 邻接表
+
+~~~
+class Solution {
+   // SPFA：用邻接表写
+public int networkDelayTime(int[][] times, int N, int K) {
+    Map<Integer, List<int[]>> map = new HashMap<>();
+    // 构建邻接表
+    for (int[] arr : times) {
+        List<int[]> list = map.getOrDefault(arr[0], new ArrayList<>());
+        list.add(new int[]{arr[1], arr[2]});
+        map.put(arr[0], list);
+    }
+    // 初始化dis数组和vis数组
+    int[] dis = new int[N + 1];
+    int INF = 0x3f3f3f3f;
+    Arrays.fill(dis, INF);  
+    boolean[] vis = new boolean[N + 1];
+    dis[K] = dis[0] = 0;
+
+    Queue<Integer> queue = new LinkedList<>();
+    queue.offer(K);
+
+    while (!queue.isEmpty()) {
+        // 取出队首节点
+        Integer poll = queue.poll();
+        // 可以重复入队
+        vis[poll] = false;
+        // 遍历起点的邻居,更新距离
+        List<int[]> list = map.getOrDefault(poll, Collections.emptyList());
+        for (int[] arr : list) {
+            int next = arr[0];
+            // 如果没更新过，或者需要更新距离()
+            if (dis[next] == INF || dis[next] > dis[poll] + arr[1]) {
+                // 更新距离
+                dis[next] = dis[poll] + arr[1];
+                // 如果队列中没有，就不需要再次入队了 （那么判断入度可以在这里做文章）
+                if (!vis[next]) {
+                    vis[next] = true;
+                    queue.offer(next);
+                }
+            }
+        }        
+    }
+    int res = Arrays.stream(dis).max().getAsInt();
+    return res == INF ? -1 : res;
+}
+
+}
+~~~
+
+
+
 # 763
 
 ```
@@ -5149,6 +5496,25 @@ class Solution {
     }
 }
 ```
+
+# 867
+
+~~~
+class Solution {
+    public int[][] transpose(int[][] matrix) {
+        int m = matrix.length;
+        int n = matrix[0].length;
+        int[][] f = new int[n][m];
+
+        for (int i=0;i<n;i++)
+            for (int j=0;j<m;j++)
+                f[i][j] = matrix[j][i];
+        return f;
+    }
+}
+~~~
+
+
 
 # 912
 
@@ -5994,4 +6360,4 @@ class Solution {
 
 
 
-8 40 103 135 132 sword20 sword51 402 117  145
+8 40 103 135 132 sword20 sword51 402 117  145 743 127
