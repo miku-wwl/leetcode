@@ -6504,6 +6504,184 @@ class Solution {
 
 ~~~
 
+# 1773
+
+~~~
+class Solution {
+    public int countMatches(List<List<String>> items, String ruleKey, String ruleValue) {
+        int index=0;
+        int ans = 0;
+        if (ruleKey.equals("type")){
+            index = 0;
+        }
+        if (ruleKey.equals("color")){
+            index = 1;
+        }
+        if (ruleKey.equals("name")){
+            index = 2;
+        }
+
+        for (List<String> list:items){
+            if (ruleValue.equals(list.get(index)))
+                ans++;
+        }
+        return ans;
+    }
+}
+~~~
+
+# 1774
+
+~~~
+class Solution {
+    int n;
+    int m;
+    int ans = 9999999;
+    int temp;
+    int _toppingCosts[];
+
+    private void find(int current,int sum,int target){
+        if(current == m){
+            if (Math.abs(sum+temp-target)<Math.abs(ans-target)){
+                // System.out.println(sum);
+                // System.out.println(temp);
+                ans = sum + temp;
+                return ;
+                
+            }
+            if (Math.abs(sum+temp-target)==Math.abs(ans-target) && sum+temp<ans){
+                ans = sum + temp;
+                return ;
+            }
+        }else{
+            //System.out.println(current);
+            find(current+1,sum,target);
+          //  System.out.println(sum);
+            find(current+1,sum+_toppingCosts[current],target);
+          //  System.out.println(sum+_toppingCosts[current]);
+            find(current+1,sum+2*_toppingCosts[current],target);
+          //  System.out.println(sum+2*_toppingCosts[current]);
+        }
+    }
+    public int closestCost(int[] baseCosts, int[] toppingCosts, int target) {
+        n = baseCosts.length;
+        m = toppingCosts.length;
+        int[] num = new int[m];
+        _toppingCosts = toppingCosts;
+
+        for (int i=0;i<n;i++){
+            
+
+            temp = baseCosts[i];
+            find(0,0,target);
+        }
+
+        return ans;
+    }
+}
+~~~
+
+# 1775
+
+~~~
+class Solution {
+    public int minOperations(int[] nums1, int[] nums2) {
+        int n = nums1.length;
+        int m = nums2.length;
+        if (6*n<m) return -1;
+        if (6*m<n) return -1;
+        int sum1 = 0;
+        int sum2 = 0;
+        for (int i:nums1){
+            sum1+=i;
+        }
+        for (int i:nums2){
+            sum2+=i;
+        }
+
+        if (sum1==sum2) return 0;
+
+        if (sum1<sum2){
+            int[] tempArray;
+            int temp;
+
+            tempArray = nums1;
+            nums1 = nums2;
+            nums2 = tempArray;
+
+            temp = sum1;
+            sum1 = sum2;
+            sum2 = temp; 
+        } 
+        PriorityQueue<Integer> n2 = new PriorityQueue<Integer>();
+        PriorityQueue<Integer> n1 = new PriorityQueue<Integer>((a,b)->b-a);
+        
+        for (int i:nums1){
+            n1.add(i);
+        }
+        for (int i:nums2){
+            n2.add(i);
+        }
+        int ans = 0;
+        while (sum2<sum1){
+            int x = n1.peek();
+            int y = n2.peek();
+            if ( (x-1) > (6-y) ){
+                sum1 = sum1 + 1 -x;
+                n1.poll();
+                n1.add(1);
+            }else{
+                sum2 = sum2 - y+6;
+                n2.poll();
+                n2.add(6);
+            }
+            ans++;
+        }
+        return ans;
+    }
+}
+~~~
+
+# 1776.cpp
+
+~~~
+class Solution {
+public:
+    vector<double> getCollisionTimes(vector<vector<int>>& cars) {
+        int n = cars.size();
+        vector<double> res(n);
+        res[n-1] = -1;
+        stack<int> st;
+        st.push(n-1);
+        for(int i = n-2; i >= 0; --i) {
+            while(st.size()) {
+                // 此处的详细说明：
+                // 1. 如果当前车的车速 <= 栈顶车的车速，则当前车永远无法追上栈顶车，因此总是可以 pop 出栈顶车；
+                // 2. 否则，如果当前车的车速 > 栈顶车：
+                //    2.1 如果栈顶车的追上更右侧车辆的时间为 -1 (永远追不上)，则不能 pop 出;
+                //    2.2 否则，则判断在 “理想状态(即栈顶车不会追上更右侧车)”下 ，当前车的追上栈顶车的时间 T
+                //        (也就是下面代码里的式子)，如果 T > res[st.top()](即栈顶车的实际追及时间)，
+                //        说明不能在右侧车追上更右侧车之前追上，应当 pop；否则能在碰撞前追上。
+                if(cars[i][1] <= cars[st.top()][1] || (res[st.top()] > 1e-9 && (double)(cars[st.top()][0] - cars[i][0]) / (double)(cars[i][1] - cars[st.top()][1]) > res[st.top()])) {
+                    st.pop();
+                } else {
+                    break;
+                }
+            }
+            if(st.size()) {
+                res[i] = (double)(cars[st.top()][0] - cars[i][0]) / (double)(cars[i][1] - cars[st.top()][1]);
+                st.push(i);
+            } else {
+                res[i] = -1;
+                st.push(i);
+            }
+        }
+        return res;
+    }
+};
+
+~~~
+
 
 
 # Sword03
