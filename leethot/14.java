@@ -8,19 +8,18 @@ class Solution {
         }
 
         String answer = "";
-        boolean check = true;
-        for (int i=0;i<miniLength && check;i++){
+ 
+        for (int i=0;i<miniLength ;i++){
             char c = strs[0].charAt(i);
             for (String str : strs){
                 char strC = str.charAt(i);
                 if (c!=strC){
-                    check = false;
-                    break;
+                    return answer;
                 }
             }
-            if (check){
+
                 answer += c;
-            }
+          
         }
 
         return answer;
